@@ -56,6 +56,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .media-card h3{margin:0 0 10px;color:#38a0ff}
 .media-link{display:inline-block;margin-top:14px;color:#38a0ff;text-decoration:none}
 .media-link:hover{text-decoration:underline}
+.analytics-post{background:#172743;border:1px solid #344967;border-radius:12px;padding:16px;margin-top:13px}
+.analytics-post h3{margin:0 0 8px;color:#38a0ff}
+.analytics-post p{color:#d5dfed;overflow-wrap:anywhere}
+.analytics-post .grid{margin-top:12px}
+.analytics-post .stat{padding:13px}
+.analytics-post .stat strong{font-size:21px}
 footer{text-align:center;color:#7386a3;padding:20px}
 @media(max-width:760px){
 .menu-btn{display:block}
@@ -225,10 +231,46 @@ When automatic replies are enabled, the connected Instagram account can automati
 <!-- ANALYTICS PAGE -->
 <section class="page" id="page-analytics">
 <div class="page-heading">
-<h1>Analytics</h1>
-<p>Real Instagram account performance and automation statistics.</p>
+<h1>Advanced Analytics</h1>
+<p>Instagram performance, engagement and top-performing posts.</p>
 </div>
 
+<!-- ADVANCED ANALYTICS -->
+<div class="card">
+<div class="row">
+<h2>🚀 Account Performance</h2>
+<button class="secondary" onclick="loadAdvancedAnalytics()">↻ Refresh Analytics</button>
+</div>
+
+<p id="advancedMessage" class="muted">Open Analytics to load advanced insights.</p>
+
+<h3>📈 Performance Overview</h3>
+<div class="grid">
+<div class="stat"><small>Total Reach</small><strong id="advReach">N/A</strong></div>
+<div class="stat"><small>Total Views</small><strong id="advViews">N/A</strong></div>
+<div class="stat"><small>Total Likes</small><strong id="advLikes">N/A</strong></div>
+<div class="stat"><small>Total Comments</small><strong id="advComments">N/A</strong></div>
+<div class="stat"><small>Total Shares</small><strong id="advShares">N/A</strong></div>
+<div class="stat"><small>Total Saves</small><strong id="advSaves">N/A</strong></div>
+<div class="stat"><small>Interactions</small><strong id="advInteractions">N/A</strong></div>
+<div class="stat"><small>Engagement Rate</small><strong id="advEngagement">N/A</strong></div>
+</div>
+
+<p class="muted" style="font-size:12px;margin-top:15px">
+Based on the latest 10 Instagram posts. Reach is summed across posts, not unique account reach. Engagement rate is an estimate.
+</p>
+</div>
+
+<!-- TOP POSTS -->
+<div class="card">
+<h2>🏆 Top 3 Performing Posts</h2>
+<p class="muted">Posts ranked by interactions.</p>
+<div id="topPosts">
+<p class="muted">Advanced analytics load hone par yahan top posts dikhenge.</p>
+</div>
+</div>
+
+<!-- COMMENT ANALYTICS -->
 <div class="card">
 <div class="row">
 <h2>Comment Analytics</h2>
@@ -243,6 +285,7 @@ When automatic replies are enabled, the connected Instagram account can automati
 </div>
 </div>
 
+<!-- INSTAGRAM POST INSIGHTS -->
 <div class="card">
 <div class="row">
 <h2>📊 Instagram Post Insights</h2>
@@ -307,6 +350,20 @@ throw new Error(data.message||data.error||"Request failed");
 return data;
 }
 
+function formatNumber(value){
+if(value===null||value===undefined||value==="")return "N/A";
+const number=Number(value);
+if(!Number.isFinite(number))return "N/A";
+return number.toLocaleString("en-IN");
+}
+
+function formatPercent(value){
+if(value===null||value===undefined||value==="")return "N/A";
+const number=Number(value);
+if(!Number.isFinite(number))return "N/A";
+return number.toFixed(2)+"%";
+}
+
 // PAGE NAVIGATION
 window.showPage=function(name){
 document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
@@ -326,6 +383,7 @@ if(name==="scheduled")window.loadScheduledPosts();
 if(name==="analytics"){
 window.loadStats();
 window.loadInstagramMedia();
+window.loadAdvancedAnalytics();
 }
 };
 
@@ -360,10 +418,13 @@ document.getElementById("comments").textContent="Unlock admin access to view com
 document.getElementById("scheduledPosts").textContent="Unlock admin access to view scheduled posts.";
 document.getElementById("instagramMedia").innerHTML="";
 document.getElementById("mediaMessage").textContent="Unlock admin access to view Instagram posts.";
-
+document.getElementById("advancedMessage").textContent="Unlock admin access first.";
+document.getElementById("topPosts").innerHTML="";
 [
 "total","replied","failed","pending","ignored",
-"aTotal","aReplied","aFailed","aPending","aIgnored"
+"aTotal","aReplied","aFailed","aPending","aIgnored",
+"advReach","advViews","advLikes","advComments",
+"advShares","advSaves","advInteractions","advEngagement"
 ].forEach(id=>{
 document.getElementById(id).textContent="0";
 });
@@ -412,12 +473,127 @@ ignored:s.ignored
 };
 
 Object.entries(values).forEach(([key,value])=>{
-document.getElementById(key).textContent=value;
-document.getElementById("a"+key.charAt(0).toUpperCase()+key.slice(1)).textContent=value;
+document.getElementById(key).textContent=formatNumber(value);
+document.getElementById("a"+key.charAt(0).toUpperCase()+key.slice(1)).textContent=formatNumber(value);
 });
 
 }catch(error){
 document.getElementById("adminMessage").textContent=error.message;
+}
+};
+
+// ADVANCED ANALYTICS
+window.loadAdvancedAnalytics=async function(){
+const message=document.getElementById("advancedMessage");
+const topArea=document.getElementById("topPosts");
+
+if(!adminKey){
+message.textContent="Unlock admin access first.";
+topArea.innerHTML="";
+return;
+}
+
+message.textContent="Loading advanced analytics...";
+topArea.innerHTML="";
+
+try{
+const data=await api("/api/advanced-analytics",{
+headers:headers()
+});
+
+if(!data.success){
+throw new Error(data.message||"Unable to load advanced analytics");
+}
+
+const totals=data.totals||{};
+
+document.getElementById("advReach").textContent=formatNumber(totals.reach);
+document.getElementById("advViews").textContent=formatNumber(totals.views);
+document.getElementById("advLikes").textContent=formatNumber(totals.likes);
+document.getElementById("advComments").textContent=formatNumber(totals.comments);
+document.getElementById("advShares").textContent=formatNumber(totals.shares);
+document.getElementById("advSaves").textContent=formatNumber(totals.saves);
+document.getElementById("advInteractions").textContent=formatNumber(totals.interactions);
+document.getElementById("advEngagement").textContent=formatPercent(totals.engagementRate);
+
+message.textContent="Analytics updated successfully · "+(data.period||"Latest Instagram posts");
+
+const posts=data.topPosts||[];
+
+if(!posts.length){
+topArea.textContent="No top-performing posts available.";
+return;
+}
+
+posts.forEach((post,index)=>{
+const card=document.createElement("div");
+card.className="analytics-post";
+
+const title=document.createElement("h3");
+title.textContent="#"+(index+1)+" Top Performing Post";
+
+const caption=document.createElement("p");
+caption.textContent=post.caption||"No caption available";
+
+const date=document.createElement("small");
+date.className="muted";
+date.textContent=post.timestamp
+?new Date(post.timestamp).toLocaleString()
+:"Date unavailable";
+
+const grid=document.createElement("div");
+grid.className="grid";
+
+const metrics=[
+["Likes",post.likes],
+["Comments",post.comments],
+["Reach",post.reach],
+["Views",post.views],
+["Shares",post.shares],
+["Saves",post.saves],
+["Interactions",post.interactions],
+["Engagement",formatPercent(post.engagementRate)]
+];
+
+metrics.forEach(([label,value])=>{
+const box=document.createElement("div");
+box.className="stat";
+
+const small=document.createElement("small");
+small.textContent=label;
+
+const strong=document.createElement("strong");
+strong.textContent=label==="Engagement"?value:formatNumber(value);
+
+box.append(small,strong);
+grid.appendChild(box);
+});
+
+card.append(title,caption,date,grid);
+
+if(post.permalink){
+const link=document.createElement("a");
+link.href=post.permalink;
+link.target="_blank";
+link.rel="noopener noreferrer";
+link.className="media-link";
+link.textContent="View Instagram Post ↗";
+card.appendChild(link);
+}
+
+if(post.insightsError){
+const warning=document.createElement("p");
+warning.className="status";
+warning.textContent="Some insights are unavailable for this post.";
+card.appendChild(warning);
+}
+
+topArea.appendChild(card);
+});
+
+}catch(error){
+message.textContent="Advanced Analytics Error: "+error.message;
+topArea.innerHTML="";
 }
 };
 
@@ -541,9 +717,7 @@ small.textContent=label;
 
 const strong=document.createElement("strong");
 strong.style.fontSize="22px";
-strong.textContent=value===null||value===undefined
-?"N/A"
-:Number(value).toLocaleString();
+strong.textContent=formatNumber(value);
 
 box.append(small,strong);
 grid.appendChild(box);
