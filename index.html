@@ -1,916 +1,182 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AYUSH AUTO</title>
-
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#080e1c;color:#fff;font-family:Arial,sans-serif}
+:root{--accent:#1677ff;--bg:#080e1c;--panel:#111d32;--line:#263958;--muted:#9eb1cc}
+body{margin:0;background:var(--bg);color:#fff;font-family:Arial,sans-serif}
 button,input,textarea,select{font:inherit}
-header{height:68px;background:#101b31;border-bottom:1px solid #263958;display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:5}
+header{height:68px;background:#101b31;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:5}
 .brand{font-size:21px;font-weight:bold;color:#38a0ff}
 .header-right{display:flex;align-items:center;gap:12px}
 .menu-btn{display:none}
 .layout{display:flex;min-height:calc(100vh - 68px)}
-.sidebar{width:235px;background:#0d1729;border-right:1px solid #263958;padding:20px 12px;flex-shrink:0}
+.sidebar{width:245px;background:#0d1729;border-right:1px solid var(--line);padding:20px 12px;flex-shrink:0;max-height:calc(100vh - 68px);overflow:auto;position:sticky;top:68px}
 .nav-title{font-size:11px;color:#7185a3;padding:10px 12px}
-.nav-btn{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:13px 14px;border:0;border-radius:9px;background:transparent;color:#aebdd3;margin:3px 0;cursor:pointer}
+.nav-btn{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border:0;border-radius:9px;background:transparent;color:#aebdd3;margin:3px 0;cursor:pointer}
 .nav-btn:hover,.nav-btn.active{background:#17345a;color:#fff}
-.nav-btn.active{border-left:3px solid #38a0ff}
-.content{flex:1;min-width:0;padding:24px;max-width:1250px;margin:0 auto;width:100%}
-.page{display:none}
-.page.active{display:block}
-.page-heading{margin-bottom:20px}
-.page-heading h1{font-size:25px;margin:0 0 8px}
-.page-heading p{color:#9eb1cc;margin:0}
-.card{background:#111d32;border:1px solid #263958;border-radius:14px;padding:19px;margin-bottom:17px}
+.nav-btn.active{border-left:3px solid var(--accent)}
+.content{flex:1;min-width:0;padding:24px;max-width:1400px;margin:0 auto;width:100%}
+.page{display:none}.page.active{display:block}
+.page-heading{margin-bottom:20px}.page-heading h1{font-size:25px;margin:0 0 8px}.page-heading p{color:var(--muted);margin:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:19px;margin-bottom:17px}
 .card h2{font-size:18px;margin:0 0 15px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px}
 .stat{background:#172743;padding:18px;border-radius:12px;min-width:0}
-.stat small{color:#9eb1cc}
-.stat strong{display:block;font-size:27px;margin-top:9px;color:#fff;overflow-wrap:anywhere}
+.stat small{color:var(--muted)}.stat strong{display:block;font-size:27px;margin-top:9px;color:#fff;overflow-wrap:anywhere}
 input,textarea,select{width:100%;background:#081426;color:white;border:1px solid #344967;border-radius:8px;padding:12px;margin:7px 0 14px}
-textarea{min-height:95px;resize:vertical}
-input[type=checkbox]{width:22px;height:22px;margin:0}
-label{font-size:14px;color:#c5d3e7}
-button.primary,.primary{border:0;border-radius:8px;padding:11px 17px;background:#1677ff;color:white;font-weight:bold;cursor:pointer}
+textarea{min-height:95px;resize:vertical}input[type=checkbox]{width:22px;height:22px;margin:0}
+label{font-size:14px;color:#c5d3e7;display:block}
+button.primary{border:0;border-radius:8px;padding:11px 17px;background:var(--accent);color:white;font-weight:bold;cursor:pointer}
 button.secondary{border:0;border-radius:8px;padding:11px 16px;background:#344967;color:white;font-weight:bold;cursor:pointer}
-button.danger{background:#9b303c;color:white}
-button:disabled{opacity:.5;cursor:not-allowed}
+button.danger{background:#9b303c;color:white}button:disabled{opacity:.5;cursor:not-allowed}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.good{color:#38df9a}
-.bad{color:#ff7070}
-.status{color:#ffc857}
-.comment{border-top:1px solid #293b56;padding:14px 0;overflow-wrap:anywhere}
-.comment p{color:#d5dfed}
-.comment small{color:#9eb1cc}
-.muted{color:#9eb1cc}
-.message{margin-top:12px;color:#38df9a;font-size:14px}
+.good{color:#38df9a}.bad{color:#ff7070}.status{color:#ffc857}
+.comment{border-top:1px solid #293b56;padding:14px 0;overflow-wrap:anywhere}.comment p{color:#d5dfed}.comment small{color:var(--muted)}
+.muted{color:var(--muted)}.message{margin-top:12px;color:#38df9a;font-size:14px}
 .pill{display:inline-block;padding:5px 10px;border-radius:20px;background:#263958;font-size:12px}
 .info{background:#172743;border:1px solid #344967;padding:14px;border-radius:10px;color:#b7c9e1;line-height:1.6}
 .media-image{width:100%;max-width:320px;max-height:260px;object-fit:contain;display:block;margin:12px 0;border-radius:10px;background:#081426}
-.media-card{background:#111d32;border:1px solid #263958;border-radius:12px;padding:17px;margin-top:15px;overflow:hidden}
-.media-card h3{margin:0 0 10px;color:#38a0ff}
+.media-card,.analytics-post{background:#172743;border:1px solid #344967;border-radius:12px;padding:16px;margin-top:13px;overflow:hidden}
+.media-card h3,.analytics-post h3{margin:0 0 10px;color:#38a0ff}
 .media-link{display:inline-block;margin-top:14px;color:#38a0ff;text-decoration:none}
-.media-link:hover{text-decoration:underline}
-.analytics-post{background:#172743;border:1px solid #344967;border-radius:12px;padding:16px;margin-top:13px}
-.analytics-post h3{margin:0 0 8px;color:#38a0ff}
-.analytics-post p{color:#d5dfed;overflow-wrap:anywhere}
-.analytics-post .grid{margin-top:12px}
-.analytics-post .stat{padding:13px}
-.analytics-post .stat strong{font-size:21px}
+.media-link:hover{text-decoration:underline}.analytics-post p{color:#d5dfed;overflow-wrap:anywhere}
+.analytics-post .grid{margin-top:12px}.analytics-post .stat{padding:13px}.analytics-post .stat strong{font-size:21px}
+.tag{display:inline-block;background:#203b61;color:#cce2ff;border:1px solid #36577f;border-radius:20px;padding:7px 10px;margin:4px;font-size:13px}
+.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.day{min-height:105px;background:#172743;border:1px solid #344967;border-radius:8px;padding:7px;font-size:12px;overflow-wrap:anywhere}
+.day.muted-day{opacity:.4}.day.today{border:2px solid var(--accent)}
+.day-event{display:block;background:#24558d;border-radius:5px;padding:4px;margin-top:5px;color:white}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:500px}th,td{text-align:left;padding:10px;border-bottom:1px solid #344967;font-size:13px}
+.small-btn{padding:7px 10px!important;font-size:12px!important}
 footer{text-align:center;color:#7386a3;padding:20px}
-@media(max-width:760px){
-.menu-btn{display:block}
-.layout{display:block}
-.sidebar{display:none;width:100%;border-right:0;border-bottom:1px solid #263958}
-.sidebar.open{display:block}
-.content{padding:16px}
-header{padding:0 15px}
-.page-heading h1{font-size:22px}
-}
+body.compact .card{padding:12px;margin-bottom:10px}body.compact .stat{padding:11px}body.compact .content{padding:15px}
+@media(max-width:900px){.sidebar{width:215px}}
+@media(max-width:760px){.menu-btn{display:block}.layout{display:block}.sidebar{display:none;width:100%;max-height:none;position:static;border-right:0;border-bottom:1px solid var(--line)}.sidebar.open{display:block}.content{padding:16px}header{padding:0 15px}.page-heading h1{font-size:22px}.calendar{gap:3px}.day{min-height:82px;padding:4px;font-size:10px}}
+@media print{header,.sidebar,footer,.no-print{display:none!important}.layout{display:block}.content{max-width:none;padding:0}.page{display:none!important}#page-analytics{display:block!important}.card{break-inside:avoid;background:white!important;color:black!important;border:1px solid #ccc}.muted,.stat small{color:#444!important}.stat{background:#eee!important;color:#000!important}.stat strong{color:#000!important}}
 </style>
 </head>
-
 <body>
-
-<header>
-<div class="brand">⚡ AYUSH AUTO</div>
-<div class="header-right">
-<span class="muted">AYUSH FF ESPORTS</span>
-<button class="secondary menu-btn" onclick="toggleMenu()">☰ Menu</button>
-</div>
-</header>
-
+<header><div class="brand">⚡ AYUSH AUTO</div><div class="header-right"><span class="muted">AYUSH FF ESPORTS</span><button class="secondary menu-btn" onclick="toggleMenu()">☰ Menu</button></div></header>
 <div class="layout">
-
 <aside class="sidebar" id="sidebar">
 <div class="nav-title">MAIN MENU</div>
-
 <button class="nav-btn active" data-page="dashboard" onclick="showPage('dashboard')">🏠 Dashboard</button>
 <button class="nav-btn" data-page="comments" onclick="showPage('comments')">💬 Comments</button>
 <button class="nav-btn" data-page="autoreply" onclick="showPage('autoreply')">🤖 Auto Reply</button>
 <button class="nav-btn" data-page="scheduled" onclick="showPage('scheduled')">📅 Scheduled Posts</button>
 <button class="nav-btn" data-page="analytics" onclick="showPage('analytics')">📊 Analytics</button>
-
+<div class="nav-title">GROWTH TOOLS</div>
+<button class="nav-btn" data-page="hashtags" onclick="showPage('hashtags')">#️⃣ Hashtag Research</button>
+<button class="nav-btn" data-page="besttime" onclick="showPage('besttime')">⏰ Best Time to Post</button>
+<button class="nav-btn" data-page="calendar" onclick="showPage('calendar')">🗓️ Content Calendar</button>
+<button class="nav-btn" data-page="captions" onclick="showPage('captions')">✨ Caption Generator</button>
+<button class="nav-btn" data-page="competitors" onclick="showPage('competitors')">👥 Competitors</button>
 <div class="nav-title">MANAGEMENT</div>
+<button class="nav-btn" data-page="notifications" onclick="showPage('notifications')">🔔 Notifications</button>
 <button class="nav-btn" data-page="settings" onclick="showPage('settings')">⚙️ Settings</button>
 </aside>
-
 <main class="content">
-
-<!-- DASHBOARD PAGE -->
 <section class="page active" id="page-dashboard">
-<div class="page-heading">
-<h1>Dashboard</h1>
-<p>Welcome to AYUSH AUTO Instagram Automation.</p>
-</div>
-
-<div class="card">
-<div class="row">
-<div>
-<h2>Instagram Connection</h2>
-<div id="connection" class="status">Checking connection...</div>
-</div>
-<button class="secondary" onclick="refreshAll()">↻ Refresh</button>
-</div>
-<p id="uptime" class="muted"></p>
-</div>
-
-<div class="card">
-<h2>📊 Comment Overview</h2>
-<div class="grid">
-<div class="stat"><small>Total Comments</small><strong id="total">0</strong></div>
-<div class="stat"><small>Replies Sent</small><strong id="replied">0</strong></div>
-<div class="stat"><small>Failed</small><strong id="failed">0</strong></div>
-<div class="stat"><small>Pending</small><strong id="pending">0</strong></div>
-<div class="stat"><small>Ignored</small><strong id="ignored">0</strong></div>
-</div>
-</div>
-
-<div class="card">
-<h2>Quick Actions</h2>
-<div class="row">
-<button class="primary" onclick="showPage('comments')">View Comments</button>
-<button class="primary" onclick="showPage('autoreply')">Auto Reply Settings</button>
-<button class="primary" onclick="showPage('scheduled')">Schedule Post</button>
-<button class="primary" onclick="showPage('analytics')">View Analytics</button>
-</div>
-</div>
+<div class="page-heading"><h1>Dashboard</h1><p>Welcome to AYUSH AUTO Instagram Automation.</p></div>
+<div class="card"><div class="row"><div><h2>Instagram Connection</h2><div id="connection" class="status">Checking connection...</div></div><button class="secondary" onclick="refreshAll()">↻ Refresh</button></div><p id="uptime" class="muted"></p></div>
+<div class="card"><h2>📊 Comment Overview</h2><div class="grid">
+<div class="stat"><small>Total Comments</small><strong id="total">0</strong></div><div class="stat"><small>Replies Sent</small><strong id="replied">0</strong></div><div class="stat"><small>Failed</small><strong id="failed">0</strong></div><div class="stat"><small>Pending</small><strong id="pending">0</strong></div><div class="stat"><small>Ignored</small><strong id="ignored">0</strong></div></div></div>
+<div class="card"><h2>Quick Actions</h2><div class="row">
+<button class="primary" onclick="showPage('comments')">View Comments</button><button class="primary" onclick="showPage('autoreply')">Auto Reply Settings</button><button class="primary" onclick="showPage('scheduled')">Schedule Post</button><button class="primary" onclick="showPage('analytics')">View Analytics</button></div></div>
+<div class="card"><h2>📅 Upcoming Scheduled Posts</h2><div id="dashboardUpcoming" class="muted">Unlock admin access to view scheduled posts.</div></div>
 </section>
 
-<!-- COMMENTS PAGE -->
-<section class="page" id="page-comments">
-<div class="page-heading">
-<h1>Comments</h1>
-<p>View Instagram comments and automatic reply status.</p>
-</div>
+<section class="page" id="page-comments"><div class="page-heading"><h1>Comments</h1><p>View Instagram comments and automatic reply status.</p></div><div class="card"><div class="row"><h2>Recent Comments</h2><button class="secondary" onclick="loadComments()">↻ Refresh Comments</button></div><div id="comments">Unlock admin access to view comments.</div></div></section>
 
-<div class="card">
-<div class="row">
-<h2>Recent Comments</h2>
-<button class="secondary" onclick="loadComments()">↻ Refresh Comments</button>
-</div>
-<div id="comments">Unlock admin access to view comments.</div>
-</div>
-</section>
+<section class="page" id="page-autoreply"><div class="page-heading"><h1>Auto Reply</h1><p>Manage automatic Instagram comment replies.</p></div>
+<div class="card"><h2>⚙️ Reply Configuration</h2><div class="row"><div><strong>Automatic Comment Reply</strong><p class="muted">Turn automatic replies on or off.</p></div><input id="autoReply" type="checkbox"></div>
+<label>Reply Message</label><textarea id="replyText" maxlength="500" placeholder="Enter your automatic reply message"></textarea><button class="primary" onclick="saveSettings()">Save Settings</button><div id="message" class="message"></div></div>
+<div class="card"><h2>How it works</h2><div class="info">When automatic replies are enabled, the connected Instagram account can automatically reply to eligible incoming comments using the message saved above.</div></div></section>
 
-<!-- AUTO REPLY PAGE -->
-<section class="page" id="page-autoreply">
-<div class="page-heading">
-<h1>Auto Reply</h1>
-<p>Manage automatic Instagram comment replies.</p>
-</div>
+<section class="page" id="page-scheduled"><div class="page-heading"><h1>Scheduled Posts</h1><p>Schedule Instagram photos and reels.</p></div>
+<div class="card"><h2>➕ Create Scheduled Post</h2><label>Post Type</label><select id="mediaType"><option value="image">Photo</option><option value="reel">Reel</option></select><label>Public HTTPS Media URL</label><input id="mediaUrl" type="url" placeholder="https://example.com/photo.jpg"><label>Caption</label><textarea id="postCaption" placeholder="Write your Instagram caption..."></textarea><label>Publish Date & Time</label><input id="scheduledAt" type="datetime-local"><button class="primary" onclick="schedulePost()">Schedule Post</button><div id="scheduleMessage" class="message"></div></div>
+<div class="card"><div class="row"><h2>Scheduled Post History</h2><button class="secondary" onclick="loadScheduledPosts()">↻ Refresh</button></div><div id="scheduledPosts">Unlock admin access to view scheduled posts.</div></div></section>
 
-<div class="card">
-<h2>⚙️ Reply Configuration</h2>
-<div class="row">
-<div>
-<strong>Automatic Comment Reply</strong>
-<p class="muted">Turn automatic replies on or off.</p>
-</div>
-<input id="autoReply" type="checkbox">
-</div>
+<section class="page" id="page-analytics"><div class="page-heading"><h1>Advanced Analytics</h1><p>Instagram performance, engagement and top-performing posts.</p></div>
+<div class="card no-print"><div class="row"><h2>Export Reports</h2><div class="row"><button class="secondary" onclick="exportAnalyticsCSV()">⬇ Export CSV</button><button class="secondary" onclick="exportAnalyticsPDF()">⬇ Save PDF</button></div></div><p class="muted">CSV downloads available metrics. PDF opens the browser print dialog; choose Save as PDF.</p></div>
+<div class="card"><div class="row"><h2>🚀 Account Performance</h2><button class="secondary" onclick="loadAdvancedAnalytics()">↻ Refresh Analytics</button></div><p id="advancedMessage" class="muted">Open Analytics to load advanced insights.</p><h3>📈 Performance Overview</h3>
+<div class="grid"><div class="stat"><small>Total Reach</small><strong id="advReach">N/A</strong></div><div class="stat"><small>Total Views</small><strong id="advViews">N/A</strong></div><div class="stat"><small>Total Likes</small><strong id="advLikes">N/A</strong></div><div class="stat"><small>Total Comments</small><strong id="advComments">N/A</strong></div><div class="stat"><small>Total Shares</small><strong id="advShares">N/A</strong></div><div class="stat"><small>Total Saves</small><strong id="advSaves">N/A</strong></div><div class="stat"><small>Interactions</small><strong id="advInteractions">N/A</strong></div><div class="stat"><small>Engagement Rate</small><strong id="advEngagement">N/A</strong></div></div>
+<p class="muted" style="font-size:12px;margin-top:15px">Based on latest 10 Instagram posts. Reach is summed across posts, not unique account reach. Engagement rate is an estimate.</p></div>
+<div class="card"><h2>🏆 Top 3 Performing Posts</h2><p class="muted">Posts ranked by interactions.</p><div id="topPosts"><p class="muted">Advanced analytics load hone par yahan top posts dikhenge.</p></div></div>
+<div class="card"><div class="row"><h2>Comment Analytics</h2><button class="secondary" onclick="loadStats()">↻ Refresh</button></div><div class="grid"><div class="stat"><small>Total Comments</small><strong id="aTotal">0</strong></div><div class="stat"><small>Replies Sent</small><strong id="aReplied">0</strong></div><div class="stat"><small>Failed Replies</small><strong id="aFailed">0</strong></div><div class="stat"><small>Pending Replies</small><strong id="aPending">0</strong></div><div class="stat"><small>Ignored Comments</small><strong id="aIgnored">0</strong></div></div></div>
+<div class="card"><div class="row"><h2>📊 Instagram Post Insights</h2><button class="secondary" onclick="loadInstagramMedia()">↻ Refresh Posts</button></div><p id="mediaMessage" class="muted">Open Analytics to load your Instagram posts.</p><div id="instagramMedia"></div></div></section>
 
-<label>Reply Message</label>
-<textarea id="replyText" maxlength="500" placeholder="Enter your automatic reply message"></textarea>
+<section class="page" id="page-hashtags"><div class="page-heading"><h1>Hashtag Research</h1><p>Topic-based hashtag ideas for Free Fire and esports posts.</p></div><div class="card"><label>Post topic / keyword</label><input id="hashtagTopic" placeholder="Example: Free Fire tournament, Booyah, custom room"><label>Choose category</label><select id="hashtagCategory"><option value="freefire">Free Fire / Gaming</option><option value="tournament">Tournament</option><option value="esports">Esports / Community</option><option value="reels">Reels / Reach</option></select><button class="primary" onclick="researchHashtags()">Find Hashtags</button><div id="hashtagResults" style="margin-top:15px"></div><p class="muted">Suggestions are curated topic matches, not live Instagram trend or volume data. Check each hashtag in Instagram before posting.</p></div></section>
 
-<button class="primary" onclick="saveSettings()">Save Settings</button>
-<div id="message" class="message"></div>
-</div>
+<section class="page" id="page-besttime"><div class="page-heading"><h1>Best Time to Post</h1><p>Suggested posting windows using available recent post performance.</p></div><div class="card"><div class="row"><h2>⏰ Your suggested time slots</h2><button class="secondary" onclick="loadBestTimes()">↻ Calculate</button></div><div id="bestTimeResults" class="muted">Unlock admin access, then calculate recommendations.</div><p class="muted">These are estimates from a small sample of recent posts, not guaranteed peak audience times. If there is not enough data, general test windows are shown.</p></div></section>
 
-<div class="card">
-<h2>How it works</h2>
-<div class="info">
-When automatic replies are enabled, the connected Instagram account can automatically reply to eligible incoming comments using the message saved above.
-</div>
-</div>
-</section>
+<section class="page" id="page-calendar"><div class="page-heading"><h1>Monthly Content Calendar</h1><p>View your scheduled posts by date.</p></div><div class="card"><div class="row"><button class="secondary" onclick="changeMonth(-1)">← Previous</button><h2 id="calendarTitle">Content Calendar</h2><button class="secondary" onclick="changeMonth(1)">Next →</button></div><div class="calendar" id="calendarGrid"></div><div id="calendarLegend" class="muted" style="margin-top:12px">Calendar shows posts saved in Scheduled Posts.</div></div></section>
 
-<!-- SCHEDULED POSTS PAGE -->
-<section class="page" id="page-scheduled">
-<div class="page-heading">
-<h1>Scheduled Posts</h1>
-<p>Schedule Instagram photos and reels.</p>
-</div>
+<section class="page" id="page-captions"><div class="page-heading"><h1>Caption + Hashtag Generator</h1><p>Create ready-to-edit captions using built-in templates.</p></div><div class="card"><label>Post topic</label><input id="captionTopic" placeholder="Example: Sunday Solo Tournament"><label>Tone</label><select id="captionTone"><option value="hype">Hype / Energetic</option><option value="professional">Professional</option><option value="friendly">Friendly</option><option value="urgent">Urgent / Last chance</option></select><label>Call to action</label><select id="captionCTA"><option value="comment">Comment below</option><option value="dm">DM to register</option><option value="follow">Follow for updates</option><option value="share">Share with squad</option></select><button class="primary" onclick="generateCaption()">Generate Caption</button><label style="margin-top:15px">Generated caption (edit before posting)</label><textarea id="generatedCaption" placeholder="Your caption will appear here..."></textarea><div class="row"><button class="secondary" onclick="copyGeneratedCaption()">Copy Caption</button><button class="secondary" onclick="useCaptionInScheduler()">Use in Scheduled Post</button></div><p class="muted">This is a built-in template generator. It does not call an external AI service.</p></div></section>
 
-<div class="card">
-<h2>➕ Create Scheduled Post</h2>
+<section class="page" id="page-competitors"><div class="page-heading"><h1>Competitor Public Profile Tracking</h1><p>Keep a manual record of public gaming/esports profiles.</p></div><div class="card"><h2>➕ Add a profile</h2><label>Instagram username</label><input id="competitorUsername" placeholder="example_gaming"><label>Public profile URL</label><input id="competitorUrl" type="url" placeholder="https://www.instagram.com/example_gaming/"><label>Follower count (manual update)</label><input id="competitorFollowers" type="number" min="0" placeholder="e.g. 12500"><label>Notes</label><textarea id="competitorNotes" placeholder="Content ideas, posting frequency, observations..."></textarea><button class="primary" onclick="addCompetitor()">Save Profile</button></div><div class="card"><div class="row"><h2>Tracked Profiles</h2><button class="secondary" onclick="renderCompetitors()">↻ Refresh</button></div><div id="competitorList"></div><p class="muted">Follower counts and notes are manually entered and saved in this browser only. This tool does not scrape profiles or access private information.</p></div></section>
 
-<label>Post Type</label>
-<select id="mediaType">
-<option value="image">Photo</option>
-<option value="reel">Reel</option>
-</select>
+<section class="page" id="page-notifications"><div class="page-heading"><h1>Notifications</h1><p>See scheduled post status changes while this dashboard is open.</p></div><div class="card"><div class="row"><h2>🔔 Browser notifications</h2><button class="secondary" onclick="enableNotifications()">Enable Notifications</button></div><p id="notificationPermission" class="muted">Browser notification permission not requested.</p><div id="notificationList">No new status updates detected yet.</div><button class="secondary" onclick="clearNotifications()">Clear visible notifications</button><p class="muted">The dashboard checks status while it is open. Browser notifications may not appear when the browser or dashboard is closed.</p></div></section>
 
-<label>Public HTTPS Media URL</label>
-<input id="mediaUrl" type="url" placeholder="https://example.com/photo.jpg">
-
-<label>Caption</label>
-<textarea id="postCaption" placeholder="Write your Instagram caption..."></textarea>
-
-<label>Publish Date & Time</label>
-<input id="scheduledAt" type="datetime-local">
-
-<button class="primary" onclick="schedulePost()">Schedule Post</button>
-<div id="scheduleMessage" class="message"></div>
-</div>
-
-<div class="card">
-<div class="row">
-<h2>Scheduled Post History</h2>
-<button class="secondary" onclick="loadScheduledPosts()">↻ Refresh</button>
-</div>
-<div id="scheduledPosts">Unlock admin access to view scheduled posts.</div>
-</div>
-</section>
-
-<!-- ANALYTICS PAGE -->
-<section class="page" id="page-analytics">
-<div class="page-heading">
-<h1>Advanced Analytics</h1>
-<p>Instagram performance, engagement and top-performing posts.</p>
-</div>
-
-<!-- ADVANCED ANALYTICS -->
-<div class="card">
-<div class="row">
-<h2>🚀 Account Performance</h2>
-<button class="secondary" onclick="loadAdvancedAnalytics()">↻ Refresh Analytics</button>
-</div>
-
-<p id="advancedMessage" class="muted">Open Analytics to load advanced insights.</p>
-
-<h3>📈 Performance Overview</h3>
-<div class="grid">
-<div class="stat"><small>Total Reach</small><strong id="advReach">N/A</strong></div>
-<div class="stat"><small>Total Views</small><strong id="advViews">N/A</strong></div>
-<div class="stat"><small>Total Likes</small><strong id="advLikes">N/A</strong></div>
-<div class="stat"><small>Total Comments</small><strong id="advComments">N/A</strong></div>
-<div class="stat"><small>Total Shares</small><strong id="advShares">N/A</strong></div>
-<div class="stat"><small>Total Saves</small><strong id="advSaves">N/A</strong></div>
-<div class="stat"><small>Interactions</small><strong id="advInteractions">N/A</strong></div>
-<div class="stat"><small>Engagement Rate</small><strong id="advEngagement">N/A</strong></div>
-</div>
-
-<p class="muted" style="font-size:12px;margin-top:15px">
-Based on the latest 10 Instagram posts. Reach is summed across posts, not unique account reach. Engagement rate is an estimate.
-</p>
-</div>
-
-<!-- TOP POSTS -->
-<div class="card">
-<h2>🏆 Top 3 Performing Posts</h2>
-<p class="muted">Posts ranked by interactions.</p>
-<div id="topPosts">
-<p class="muted">Advanced analytics load hone par yahan top posts dikhenge.</p>
-</div>
-</div>
-
-<!-- COMMENT ANALYTICS -->
-<div class="card">
-<div class="row">
-<h2>Comment Analytics</h2>
-<button class="secondary" onclick="loadStats()">↻ Refresh</button>
-</div>
-<div class="grid">
-<div class="stat"><small>Total Comments</small><strong id="aTotal">0</strong></div>
-<div class="stat"><small>Replies Sent</small><strong id="aReplied">0</strong></div>
-<div class="stat"><small>Failed Replies</small><strong id="aFailed">0</strong></div>
-<div class="stat"><small>Pending Replies</small><strong id="aPending">0</strong></div>
-<div class="stat"><small>Ignored Comments</small><strong id="aIgnored">0</strong></div>
-</div>
-</div>
-
-<!-- INSTAGRAM POST INSIGHTS -->
-<div class="card">
-<div class="row">
-<h2>📊 Instagram Post Insights</h2>
-<button class="secondary" onclick="loadInstagramMedia()">↻ Refresh Posts</button>
-</div>
-<p id="mediaMessage" class="muted">Open Analytics to load your Instagram posts.</p>
-<div id="instagramMedia"></div>
-</div>
-</section>
-
-<!-- SETTINGS PAGE -->
-<section class="page" id="page-settings">
-<div class="page-heading">
-<h1>Settings</h1>
-<p>Admin access and dashboard configuration.</p>
-</div>
-
-<div class="card">
-<h2>🔐 Admin Access</h2>
-<p class="muted">Enter your existing ADMIN_API_KEY from Render environment variables. Never share it with anyone.</p>
-<input id="adminKey" type="password" placeholder="Admin API Key">
-<div class="row">
-<button class="primary" onclick="saveKey()">Unlock Dashboard</button>
-<button class="secondary" onclick="clearKey()">Lock Dashboard</button>
-</div>
-<div id="adminMessage" class="message"></div>
-</div>
-
-<div class="card">
-<h2>Application Information</h2>
-<p>Application: AYUSH AUTO</p>
-<p>Instagram Account: @ayush_ff_esports</p>
-<p>Backend: Render</p>
-<p>Database: PostgreSQL</p>
-</div>
-</section>
-
-</main>
-</div>
-
+<section class="page" id="page-settings"><div class="page-heading"><h1>Settings</h1><p>Admin access and dashboard customization.</p></div>
+<div class="card"><h2>🔐 Admin Access</h2><p class="muted">Enter your existing ADMIN_API_KEY from Render environment variables. Never share it with anyone.</p><input id="adminKey" type="password" placeholder="Admin API Key"><div class="row"><button class="primary" onclick="saveKey()">Unlock Dashboard</button><button class="secondary" onclick="clearKey()">Lock Dashboard</button></div><div id="adminMessage" class="message"></div></div>
+<div class="card"><h2>🎨 Dashboard Customization</h2><label>Accent colour</label><select id="accentChoice" onchange="saveCustomization()"><option value="#1677ff">Blue</option><option value="#8b5cf6">Purple</option><option value="#0d9488">Teal</option><option value="#e87922">Orange</option><option value="#db2777">Pink</option></select><div class="row" style="justify-content:flex-start;margin:12px 0"><input id="compactMode" type="checkbox" onchange="saveCustomization()"><label for="compactMode">Compact dashboard spacing</label></div><label>Visible dashboard cards</label><div class="row" style="justify-content:flex-start;margin:10px 0"><input id="showCommentStats" type="checkbox" checked onchange="saveCustomization()"><label for="showCommentStats">Comment overview</label></div><div class="row" style="justify-content:flex-start;margin:10px 0"><input id="showUpcoming" type="checkbox" checked onchange="saveCustomization()"><label for="showUpcoming">Upcoming scheduled posts</label></div><button class="secondary" onclick="resetCustomization()">Reset customization</button><p class="muted">Customization is saved locally in this browser.</p></div>
+<div class="card"><h2>Application Information</h2><p>Application: AYUSH AUTO</p><p>Instagram Account: @ayush_ff_esports</p><p>Backend: Render</p><p>Database: PostgreSQL</p></div></section>
+</main></div>
 <footer>AYUSH FF ESPORTS · AYUSH AUTO</footer>
 
 <script>
 const API="https://ayush-ff-backend.onrender.com";
 let adminKey=sessionStorage.getItem("ayush_admin_key")||"";
-
-function headers(){
-return {
-"Content-Type":"application/json",
-"X-Admin-Key":adminKey
-};
-}
-
-async function api(path,options={}){
-const response=await fetch(API+path,options);
-const data=await response.json();
-
-if(!response.ok){
-throw new Error(data.message||data.error||"Request failed");
-}
-
-return data;
-}
-
-function formatNumber(value){
-if(value===null||value===undefined||value==="")return "N/A";
-const number=Number(value);
-if(!Number.isFinite(number))return "N/A";
-return number.toLocaleString("en-IN");
-}
-
-function formatPercent(value){
-if(value===null||value===undefined||value==="")return "N/A";
-const number=Number(value);
-if(!Number.isFinite(number))return "N/A";
-return number.toFixed(2)+"%";
-}
-
-// PAGE NAVIGATION
-window.showPage=function(name){
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-
-const page=document.getElementById("page-"+name);
-if(page)page.classList.add("active");
-
-const button=document.querySelector('[data-page="'+name+'"]');
-if(button)button.classList.add("active");
-
-document.getElementById("sidebar").classList.remove("open");
-
-if(name==="comments")window.loadComments();
-if(name==="scheduled")window.loadScheduledPosts();
-
-if(name==="analytics"){
-window.loadStats();
-window.loadInstagramMedia();
-window.loadAdvancedAnalytics();
-}
-};
-
-window.toggleMenu=function(){
-document.getElementById("sidebar").classList.toggle("open");
-};
-
-// ADMIN ACCESS
-window.saveKey=function(){
-const value=document.getElementById("adminKey").value.trim();
-
-if(!value){
-document.getElementById("adminMessage").textContent="Enter admin key.";
-return;
-}
-
-adminKey=value;
-sessionStorage.setItem("ayush_admin_key",value);
-document.getElementById("adminKey").value="";
-document.getElementById("adminMessage").textContent="Admin key saved for this browser session.";
-
-window.refreshAll();
-window.loadScheduledPosts();
-};
-
-window.clearKey=function(){
-sessionStorage.removeItem("ayush_admin_key");
-adminKey="";
-
-document.getElementById("adminMessage").textContent="Dashboard locked.";
-document.getElementById("comments").textContent="Unlock admin access to view comments.";
-document.getElementById("scheduledPosts").textContent="Unlock admin access to view scheduled posts.";
-document.getElementById("instagramMedia").innerHTML="";
-document.getElementById("mediaMessage").textContent="Unlock admin access to view Instagram posts.";
-document.getElementById("advancedMessage").textContent="Unlock admin access first.";
-document.getElementById("topPosts").innerHTML="";
-[
-"total","replied","failed","pending","ignored",
-"aTotal","aReplied","aFailed","aPending","aIgnored",
-"advReach","advViews","advLikes","advComments",
-"advShares","advSaves","advInteractions","advEngagement"
-].forEach(id=>{
-document.getElementById(id).textContent="0";
-});
-};
-
-// INSTAGRAM STATUS
-async function loadStatus(){
-try{
-const data=await api("/api/status");
-
-document.getElementById("connection").innerHTML=data.connected
-?'<span class="good">● Instagram Connected</span>'
-:'<span class="bad">● Instagram Disconnected</span>';
-
-document.getElementById("uptime").textContent=
-"Server uptime: "+Math.floor(data.uptimeSeconds/60)+" minutes";
-
-document.getElementById("autoReply").checked=
-Boolean(data.automation.autoCommentReply);
-
-document.getElementById("replyText").value=
-data.automation.autoReplyText||"";
-
-}catch(error){
-document.getElementById("connection").textContent="Backend connection failed: "+error.message;
-}
-}
-
-// COMMENT STATISTICS
-window.loadStats=async function(){
-if(!adminKey){
-document.getElementById("adminMessage").textContent="Unlock dashboard first.";
-return;
-}
-
-try{
-const data=await api("/api/comments/stats",{headers:headers()});
-const s=data.statistics;
-
-const values={
-total:s.total,
-replied:s.replied,
-failed:s.failed,
-pending:s.pending,
-ignored:s.ignored
-};
-
-Object.entries(values).forEach(([key,value])=>{
-document.getElementById(key).textContent=formatNumber(value);
-document.getElementById("a"+key.charAt(0).toUpperCase()+key.slice(1)).textContent=formatNumber(value);
-});
-
-}catch(error){
-document.getElementById("adminMessage").textContent=error.message;
-}
-};
-
-// ADVANCED ANALYTICS
-window.loadAdvancedAnalytics=async function(){
-const message=document.getElementById("advancedMessage");
-const topArea=document.getElementById("topPosts");
-
-if(!adminKey){
-message.textContent="Unlock admin access first.";
-topArea.innerHTML="";
-return;
-}
-
-message.textContent="Loading advanced analytics...";
-topArea.innerHTML="";
-
-try{
-const data=await api("/api/advanced-analytics",{
-headers:headers()
-});
-
-if(!data.success){
-throw new Error(data.message||"Unable to load advanced analytics");
-}
-
-const totals=data.totals||{};
-
-document.getElementById("advReach").textContent=formatNumber(totals.reach);
-document.getElementById("advViews").textContent=formatNumber(totals.views);
-document.getElementById("advLikes").textContent=formatNumber(totals.likes);
-document.getElementById("advComments").textContent=formatNumber(totals.comments);
-document.getElementById("advShares").textContent=formatNumber(totals.shares);
-document.getElementById("advSaves").textContent=formatNumber(totals.saves);
-document.getElementById("advInteractions").textContent=formatNumber(totals.interactions);
-document.getElementById("advEngagement").textContent=formatPercent(totals.engagementRate);
-
-message.textContent="Analytics updated successfully · "+(data.period||"Latest Instagram posts");
-
-const posts=data.topPosts||[];
-
-if(!posts.length){
-topArea.textContent="No top-performing posts available.";
-return;
-}
-
-posts.forEach((post,index)=>{
-const card=document.createElement("div");
-card.className="analytics-post";
-
-const title=document.createElement("h3");
-title.textContent="#"+(index+1)+" Top Performing Post";
-
-const caption=document.createElement("p");
-caption.textContent=post.caption||"No caption available";
-
-const date=document.createElement("small");
-date.className="muted";
-date.textContent=post.timestamp
-?new Date(post.timestamp).toLocaleString()
-:"Date unavailable";
-
-const grid=document.createElement("div");
-grid.className="grid";
-
-const metrics=[
-["Likes",post.likes],
-["Comments",post.comments],
-["Reach",post.reach],
-["Views",post.views],
-["Shares",post.shares],
-["Saves",post.saves],
-["Interactions",post.interactions],
-["Engagement",formatPercent(post.engagementRate)]
-];
-
-metrics.forEach(([label,value])=>{
-const box=document.createElement("div");
-box.className="stat";
-
-const small=document.createElement("small");
-small.textContent=label;
-
-const strong=document.createElement("strong");
-strong.textContent=label==="Engagement"?value:formatNumber(value);
-
-box.append(small,strong);
-grid.appendChild(box);
-});
-
-card.append(title,caption,date,grid);
-
-if(post.permalink){
-const link=document.createElement("a");
-link.href=post.permalink;
-link.target="_blank";
-link.rel="noopener noreferrer";
-link.className="media-link";
-link.textContent="View Instagram Post ↗";
-card.appendChild(link);
-}
-
-if(post.insightsError){
-const warning=document.createElement("p");
-warning.className="status";
-warning.textContent="Some insights are unavailable for this post.";
-card.appendChild(warning);
-}
-
-topArea.appendChild(card);
-});
-
-}catch(error){
-message.textContent="Advanced Analytics Error: "+error.message;
-topArea.innerHTML="";
-}
-};
-
-// COMMENTS
-window.loadComments=async function(){
-if(!adminKey){
-document.getElementById("comments").textContent="Unlock admin access first.";
-return;
-}
-
-const area=document.getElementById("comments");
-area.textContent="Loading comments...";
-
-try{
-const data=await api("/api/comments?limit=50",{headers:headers()});
-area.innerHTML="";
-
-if(!data.comments.length){
-area.textContent="No comments found yet.";
-return;
-}
-
-data.comments.forEach(c=>{
-const item=document.createElement("div");
-item.className="comment";
-
-const name=document.createElement("strong");
-name.textContent="@"+(c.username||"Unknown");
-
-const commentText=document.createElement("p");
-commentText.textContent=c.comment_text||"(No text)";
-
-const details=document.createElement("small");
-details.textContent="Status: "+c.reply_status+" · "+(c.created_at||"");
-
-item.append(name,commentText,details);
-area.appendChild(item);
-});
-
-}catch(error){
-area.textContent="Error: "+error.message;
-}
-};
-
-// INSTAGRAM MEDIA ANALYTICS
-window.loadInstagramMedia=async function(){
-const area=document.getElementById("instagramMedia");
-const message=document.getElementById("mediaMessage");
-
-if(!adminKey){
-message.textContent="Unlock admin access first.";
-area.innerHTML="";
-return;
-}
-
-message.textContent="Loading Instagram posts and insights...";
-area.innerHTML="";
-
-try{
-const data=await api("/api/instagram-media",{
-headers:headers()
-});
-
-if(!data.success){
-throw new Error(data.message||"Unable to load Instagram posts");
-}
-
-if(!data.posts||!data.posts.length){
-message.textContent="No Instagram posts found.";
-return;
-}
-
-message.textContent="Showing "+data.total+" recent Instagram posts.";
-
-data.posts.forEach(post=>{
-const card=document.createElement("div");
-card.className="media-card";
-
-const title=document.createElement("h3");
-title.textContent=post.mediaProductType||post.mediaType||"Instagram Post";
-
-const caption=document.createElement("p");
-caption.textContent=post.caption||"No caption";
-
-const date=document.createElement("small");
-date.className="muted";
-date.textContent=post.timestamp
-?new Date(post.timestamp).toLocaleString()
-:"Date unavailable";
-
-card.append(title,caption,date);
-
-if(post.image){
-const img=document.createElement("img");
-img.src=post.image;
-img.alt="Instagram post";
-img.className="media-image";
-img.onerror=()=>img.remove();
-card.appendChild(img);
-}
-
-const grid=document.createElement("div");
-grid.className="grid";
-
-const metrics=[
-["Likes",post.likes],
-["Comments",post.comments],
-["Reach",post.reach],
-["Views",post.views],
-["Saves",post.saves],
-["Shares",post.shares],
-["Interactions",post.totalInteractions]
-];
-
-metrics.forEach(([label,value])=>{
-const box=document.createElement("div");
-box.className="stat";
-
-const small=document.createElement("small");
-small.textContent=label;
-
-const strong=document.createElement("strong");
-strong.style.fontSize="22px";
-strong.textContent=formatNumber(value);
-
-box.append(small,strong);
-grid.appendChild(box);
-});
-
-card.appendChild(grid);
-
-if(post.insightsError){
-const warning=document.createElement("p");
-warning.className="status";
-warning.textContent="Some insights are unavailable for this post due to Instagram API metric restrictions.";
-card.appendChild(warning);
-}
-
-if(post.permalink){
-const link=document.createElement("a");
-link.href=post.permalink;
-link.target="_blank";
-link.rel="noopener noreferrer";
-link.textContent="View Instagram Post ↗";
-link.className="media-link";
-card.appendChild(link);
-}
-
-area.appendChild(card);
-});
-
-}catch(error){
-message.textContent="Instagram Analytics Error: "+error.message;
-}
-};
-
-// SAVE AUTO REPLY SETTINGS
-window.saveSettings=async function(){
-if(!adminKey){
-alert("Unlock dashboard first.");
-return;
-}
-
-const message=document.getElementById("message");
-message.textContent="Saving...";
-
-try{
-await api("/api/settings",{
-method:"POST",
-headers:headers(),
-body:JSON.stringify({
-autoCommentReply:document.getElementById("autoReply").checked,
-autoReplyText:document.getElementById("replyText").value.trim()
-})
-});
-
-message.textContent="Settings saved successfully!";
-await loadStatus();
-
-}catch(error){
-message.textContent="Error: "+error.message;
-}
-};
-
-// SCHEDULE POST
-window.schedulePost=async function(){
-if(!adminKey){
-alert("Unlock dashboard first.");
-return;
-}
-
-const mediaType=document.getElementById("mediaType").value;
-const mediaUrl=document.getElementById("mediaUrl").value.trim();
-const caption=document.getElementById("postCaption").value;
-const scheduledAt=document.getElementById("scheduledAt").value;
-
-if(!mediaUrl||!scheduledAt){
-alert("Media URL aur date/time required hain.");
-return;
-}
-
-if(!mediaUrl.startsWith("https://")){
-alert("Public HTTPS URL required.");
-return;
-}
-
-const date=new Date(scheduledAt);
-
-if(isNaN(date.getTime())||date<=new Date()){
-alert("Future date and time select karo.");
-return;
-}
-
-const message=document.getElementById("scheduleMessage");
-message.textContent="Scheduling...";
-
-try{
-await api("/api/schedule",{
-method:"POST",
-headers:headers(),
-body:JSON.stringify({
-mediaType:mediaType,
-mediaUrl:mediaUrl,
-caption:caption,
-scheduledAt:date.toISOString()
-})
-});
-
-message.textContent="Post scheduled successfully!";
-document.getElementById("mediaUrl").value="";
-document.getElementById("postCaption").value="";
-document.getElementById("scheduledAt").value="";
-
-await window.loadScheduledPosts();
-
-}catch(error){
-message.textContent="Error: "+error.message;
-}
-};
-
-// LOAD SCHEDULED POSTS
-window.loadScheduledPosts=async function(){
-if(!adminKey){
-document.getElementById("scheduledPosts").textContent="Unlock admin access first.";
-return;
-}
-
-const area=document.getElementById("scheduledPosts");
-area.textContent="Loading...";
-
-try{
-const data=await api("/api/scheduled-posts",{headers:headers()});
-area.innerHTML="";
-
-if(!data.posts||!data.posts.length){
-area.textContent="No scheduled posts.";
-return;
-}
-
-data.posts.forEach(post=>{
-const item=document.createElement("div");
-item.className="comment";
-
-const title=document.createElement("strong");
-title.textContent=(post.media_type||"POST").toUpperCase()+" · "+post.status;
-
-const details=document.createElement("p");
-details.textContent=new Date(post.scheduled_at).toLocaleString();
-
-item.append(title,details);
-
-if(post.status==="pending"){
-const cancel=document.createElement("button");
-cancel.className="secondary danger";
-cancel.textContent="Cancel";
-cancel.onclick=()=>window.cancelScheduledPost(post.id);
-item.appendChild(cancel);
-}
-
-area.appendChild(item);
-});
-
-}catch(error){
-area.textContent="Error: "+error.message;
-}
-};
-
-// CANCEL SCHEDULED POST
-window.cancelScheduledPost=async function(id){
-if(!confirm("Cancel this scheduled post?"))return;
-
-try{
-await api("/api/scheduled-posts/"+id,{
-method:"DELETE",
-headers:headers()
-});
-
-await window.loadScheduledPosts();
-
-}catch(error){
-alert(error.message);
-}
-};
-
-// REFRESH ALL
-window.refreshAll=async function(){
-await loadStatus();
-
-if(adminKey){
-await window.loadStats();
-await window.loadComments();
-}
-};
-
-window.refreshAll();
-setInterval(window.refreshAll,30000);
+let latestAnalytics=null,latestMediaPosts=[],scheduledCache=[],calendarDate=new Date();
+let previousPostStatuses={},notifications=[];
+const $=id=>document.getElementById(id);
+function headers(){return {"Content-Type":"application/json","X-Admin-Key":adminKey};}
+async function api(path,options={}){const response=await fetch(API+path,options);let data={};try{data=await response.json()}catch(e){}if(!response.ok)throw new Error(data.message||data.error||"Request failed ("+response.status+")");return data;}
+function formatNumber(value){if(value===null||value===undefined||value==="")return "N/A";const n=Number(value);return Number.isFinite(n)?n.toLocaleString("en-IN"):"N/A";}
+function formatPercent(value){if(value===null||value===undefined||value==="")return "N/A";const n=Number(value);return Number.isFinite(n)?n.toFixed(2)+"%":"N/A";}
+window.showPage=function(name){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));$("page-"+name)?.classList.add("active");document.querySelector('[data-page="'+name+'"]')?.classList.add("active");$("sidebar").classList.remove("open");
+if(name==="comments")loadComments();if(name==="scheduled"||name==="calendar")loadScheduledPosts();if(name==="analytics"){loadStats();loadInstagramMedia();loadAdvancedAnalytics()}if(name==="besttime")loadBestTimes();if(name==="competitors")renderCompetitors();if(name==="calendar")renderCalendar();if(name==="notifications")renderNotifications();};
+window.toggleMenu=()=>$("sidebar").classList.toggle("open");
+window.saveKey=function(){const value=$("adminKey").value.trim();if(!value){$("adminMessage").textContent="Enter admin key.";return;}adminKey=value;sessionStorage.setItem("ayush_admin_key",value);$("adminKey").value="";$("adminMessage").textContent="Admin key saved for this browser session.";refreshAll();loadScheduledPosts();};
+window.clearKey=function(){sessionStorage.removeItem("ayush_admin_key");adminKey="";$("adminMessage").textContent="Dashboard locked.";["comments","scheduledPosts","instagramMedia","topPosts","dashboardUpcoming"].forEach(id=>$(id).textContent="Unlock admin access first.");$("mediaMessage").textContent="Unlock admin access first.";};
+async function loadStatus(){try{const d=await api("/api/status");$("connection").innerHTML=d.connected?'<span class="good">● Instagram Connected</span>':'<span class="bad">● Instagram Disconnected</span>';$("uptime").textContent="Server uptime: "+Math.floor((d.uptimeSeconds||0)/60)+" minutes";if(d.automation){$("autoReply").checked=Boolean(d.automation.autoCommentReply);$("replyText").value=d.automation.autoReplyText||"";}}catch(e){$("connection").textContent="Backend connection failed: "+e.message;}}
+window.loadStats=async function(){if(!adminKey)return;try{const d=await api("/api/comments/stats",{headers:headers()});const s=d.statistics||{};const map={total:s.total,replied:s.replied,failed:s.failed,pending:s.pending,ignored:s.ignored};Object.entries(map).forEach(([k,v])=>{$(k).textContent=formatNumber(v);$("a"+k[0].toUpperCase()+k.slice(1)).textContent=formatNumber(v);});}catch(e){$("adminMessage").textContent=e.message;}};
+window.loadAdvancedAnalytics=async function(){if(!adminKey){$("advancedMessage").textContent="Unlock admin access first.";return;}$("advancedMessage").textContent="Loading advanced analytics...";$("topPosts").innerHTML="";try{const d=await api("/api/advanced-analytics",{headers:headers()});if(!d.success)throw new Error(d.message||"Unable to load analytics");latestAnalytics=d;const t=d.totals||{};$("advReach").textContent=formatNumber(t.reach);$("advViews").textContent=formatNumber(t.views);$("advLikes").textContent=formatNumber(t.likes);$("advComments").textContent=formatNumber(t.comments);$("advShares").textContent=formatNumber(t.shares);$("advSaves").textContent=formatNumber(t.saves);$("advInteractions").textContent=formatNumber(t.interactions);$("advEngagement").textContent=formatPercent(t.engagementRate);$("advancedMessage").textContent="Analytics updated · "+(d.period||"Latest Instagram posts");(d.topPosts||[]).forEach((p,i)=>{const c=document.createElement("div");c.className="analytics-post";const h=document.createElement("h3");h.textContent="#"+(i+1)+" Top Performing Post";const cap=document.createElement("p");cap.textContent=p.caption||"No caption";const date=document.createElement("small");date.className="muted";date.textContent=p.timestamp?new Date(p.timestamp).toLocaleString():"Date unavailable";const g=document.createElement("div");g.className="grid";[["Likes",p.likes],["Comments",p.comments],["Reach",p.reach],["Views",p.views],["Shares",p.shares],["Saves",p.saves],["Interactions",p.interactions],["Engagement",formatPercent(p.engagementRate)]].forEach(([l,v])=>{const b=document.createElement("div");b.className="stat";const s=document.createElement("small");s.textContent=l;const st=document.createElement("strong");st.textContent=l==="Engagement"?v:formatNumber(v);b.append(s,st);g.append(b);});c.append(h,cap,date,g);if(p.permalink){const a=document.createElement("a");a.href=p.permalink;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="View Instagram Post ↗";c.append(a);} $("topPosts").append(c);});if(!(d.topPosts||[]).length)$("topPosts").textContent="No top-performing posts available.";}catch(e){$("advancedMessage").textContent="Advanced Analytics Error: "+e.message;}};
+window.loadComments=async function(){if(!adminKey){$("comments").textContent="Unlock admin access first.";return;}const a=$("comments");a.textContent="Loading comments...";try{const d=await api("/api/comments?limit=50",{headers:headers()});a.innerHTML="";if(!d.comments?.length){a.textContent="No comments found yet.";return;}d.comments.forEach(c=>{const x=document.createElement("div");x.className="comment";const n=document.createElement("strong");n.textContent="@"+(c.username||"Unknown");const p=document.createElement("p");p.textContent=c.comment_text||"(No text)";const s=document.createElement("small");s.textContent="Status: "+c.reply_status+" · "+(c.created_at||"");x.append(n,p,s);a.append(x);});}catch(e){a.textContent="Error: "+e.message;}};
+window.loadInstagramMedia=async function(){if(!adminKey){$("mediaMessage").textContent="Unlock admin access first.";return;}const area=$("instagramMedia");$("mediaMessage").textContent="Loading Instagram posts and insights...";area.innerHTML="";try{const d=await api("/api/instagram-media",{headers:headers()});if(!d.success)throw new Error(d.message||"Unable to load posts");latestMediaPosts=d.posts||[];if(!latestMediaPosts.length){$("mediaMessage").textContent="No Instagram posts found.";return;}$("mediaMessage").textContent="Showing "+(d.total||latestMediaPosts.length)+" recent Instagram posts.";latestMediaPosts.forEach(p=>{const c=document.createElement("div");c.className="media-card";const h=document.createElement("h3");h.textContent=p.mediaProductType||p.mediaType||"Instagram Post";const cap=document.createElement("p");cap.textContent=p.caption||"No caption";const dt=document.createElement("small");dt.className="muted";dt.textContent=p.timestamp?new Date(p.timestamp).toLocaleString():"Date unavailable";c.append(h,cap,dt);if(p.image){const im=document.createElement("img");im.src=p.image;im.alt="Instagram post";im.className="media-image";im.onerror=()=>im.remove();c.append(im);}const g=document.createElement("div");g.className="grid";[["Likes",p.likes],["Comments",p.comments],["Reach",p.reach],["Views",p.views],["Saves",p.saves],["Shares",p.shares],["Interactions",p.totalInteractions]].forEach(([l,v])=>{const b=document.createElement("div");b.className="stat";const sm=document.createElement("small");sm.textContent=l;const st=document.createElement("strong");st.textContent=formatNumber(v);st.style.fontSize="22px";b.append(sm,st);g.append(b);});c.append(g);if(p.permalink){const a=document.createElement("a");a.href=p.permalink;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="View Instagram Post ↗";c.append(a);}area.append(c);});}catch(e){$("mediaMessage").textContent="Instagram Analytics Error: "+e.message;}};
+window.saveSettings=async function(){if(!adminKey){alert("Unlock dashboard first.");return;}$("message").textContent="Saving...";try{await api("/api/settings",{method:"POST",headers:headers(),body:JSON.stringify({autoCommentReply:$("autoReply").checked,autoReplyText:$("replyText").value.trim()})});$("message").textContent="Settings saved successfully!";await loadStatus();}catch(e){$("message").textContent="Error: "+e.message;}};
+window.schedulePost=async function(){if(!adminKey){alert("Unlock dashboard first.");return;}const mediaType=$("mediaType").value,mediaUrl=$("mediaUrl").value.trim(),caption=$("postCaption").value,scheduledAt=$("scheduledAt").value;if(!mediaUrl||!scheduledAt){alert("Media URL aur date/time required hain.");return;}if(!mediaUrl.startsWith("https://")){alert("Public HTTPS URL required.");return;}const date=new Date(scheduledAt);if(isNaN(date)||date<=new Date()){alert("Future date and time select karo.");return;}$("scheduleMessage").textContent="Scheduling...";try{await api("/api/schedule",{method:"POST",headers:headers(),body:JSON.stringify({mediaType,mediaUrl,caption,scheduledAt:date.toISOString()})});$("scheduleMessage").textContent="Post scheduled successfully!";$("mediaUrl").value="";$("postCaption").value="";$("scheduledAt").value="";await loadScheduledPosts();}catch(e){$("scheduleMessage").textContent="Error: "+e.message;}};
+window.loadScheduledPosts=async function(){if(!adminKey){$("scheduledPosts").textContent="Unlock admin access first.";$("dashboardUpcoming").textContent="Unlock admin access first.";return;}const area=$("scheduledPosts");area.textContent="Loading...";try{const d=await api("/api/scheduled-posts",{headers:headers()});scheduledCache=d.posts||[];area.innerHTML="";if(!scheduledCache.length)area.textContent="No scheduled posts.";scheduledCache.forEach(p=>{const x=document.createElement("div");x.className="comment";const h=document.createElement("strong");h.textContent=(p.media_type||"POST").toUpperCase()+" · "+p.status;const dt=document.createElement("p");dt.textContent=new Date(p.scheduled_at).toLocaleString();x.append(h,dt);if(p.status==="pending"){const b=document.createElement("button");b.className="secondary danger";b.textContent="Cancel";b.onclick=()=>cancelScheduledPost(p.id);x.append(b);}area.append(x);});const upcoming=scheduledCache.filter(p=>p.status==="pending").sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)).slice(0,5);$("dashboardUpcoming").innerHTML="";if(!upcoming.length)$("dashboardUpcoming").textContent="No upcoming scheduled posts.";upcoming.forEach(p=>{const d=document.createElement("div");d.className="comment";d.textContent=(p.media_type||"Post").toUpperCase()+" · "+new Date(p.scheduled_at).toLocaleString();$("dashboardUpcoming").append(d);});checkScheduleChanges(scheduledCache);renderCalendar();}catch(e){area.textContent="Error: "+e.message;}};
+window.cancelScheduledPost=async function(id){if(!confirm("Cancel this scheduled post?"))return;try{await api("/api/scheduled-posts/"+id,{method:"DELETE",headers:headers()});await loadScheduledPosts();}catch(e){alert(e.message);}};
+function checkScheduleChanges(posts){posts.forEach(p=>{const id=String(p.id),status=String(p.status||"unknown");if(previousPostStatuses[id]&&previousPostStatuses[id]!==status&&["published","failed"].includes(status.toLowerCase())){const msg="Scheduled post "+status+": "+new Date(p.scheduled_at).toLocaleString();notifications.unshift({text:msg,date:new Date().toLocaleString()});if("Notification"in window&&Notification.permission==="granted")new Notification("AYUSH AUTO", {body:msg});}previousPostStatuses[id]=status;});renderNotifications();}
+window.refreshAll=async function(){await loadStatus();if(adminKey){await loadStats();await loadComments();}};
+window.researchHashtags=function(){const topic=$("hashtagTopic").value.trim().toLowerCase(),cat=$("hashtagCategory").value;const sets={freefire:["#freefire","#freefireindia","#freefiremax","#garena","#garenafreefire","#freefirecommunity","#booyah","#ffgaming"],tournament:["#freefiretournament","#ffcustomroom","#freefireesports","#esportstournament","#gamingtournament","#indiangamers","#tournament","#ff ಪಂದ್ಯ"],esports:["#esports","#mobilegaming","#indiangaming","#gamingcommunity","#esportsindia","#progaming","#gamerlife","#squadgoals"],reels:["#gamingreels","#freefirereels","#gamingclips","#booyahmoment","#reelsindia","#instagaming","#viralreels","#gamingcontent"]};let tags=[...sets[cat]];if(topic){const words=topic.split(/[^a-z0-9]+/).filter(w=>w.length>2).slice(0,4).map(w=>"#"+w);tags=[...new Set([...words,...tags])];}const area=$("hashtagResults");area.innerHTML="<h3>Suggested hashtags</h3>";tags.forEach(t=>{const s=document.createElement("span");s.className="tag";s.textContent=t;area.append(s);});const b=document.createElement("button");b.className="secondary";b.textContent="Copy Hashtags";b.onclick=()=>copyText(tags.join(" "));area.append(document.createElement("br"),b);};
+window.loadBestTimes=async function(){const area=$("bestTimeResults");if(!adminKey){area.textContent="Unlock admin access first.";return;}area.textContent="Analysing recent post timestamps...";try{let posts=latestMediaPosts;if(!posts.length){const d=await api("/api/instagram-media",{headers:headers()});posts=d.posts||[];latestMediaPosts=posts;}const hours={};posts.forEach(p=>{if(!p.timestamp)return;const dt=new Date(p.timestamp);if(!isNaN(dt)){const h=dt.getHours();const engagement=Number(p.totalInteractions||0)+Number(p.likes||0)+Number(p.comments||0);if(!hours[h])hours[h]={score:0,count:0};hours[h].score+=engagement;hours[h].count++;}});let slots=Object.entries(hours).map(([h,v])=>({hour:Number(h),score:v.score/v.count,count:v.count})).sort((a,b)=>b.score-a.score).slice(0,3);area.innerHTML="";if(slots.length){const p=document.createElement("p");p.textContent="Based on available post timestamps and interactions:";area.append(p);slots.forEach((s,i)=>{const d=document.createElement("div");d.className="stat";d.style.margin="8px 0";d.innerHTML="<small>Suggested test slot #"+(i+1)+" · "+s.count+" post(s) in sample</small><strong>"+hourLabel(s.hour)+"</strong>";area.append(d);});}else{area.innerHTML="<div class='info'>Not enough timestamp data found. Start by testing these windows (local time):<br><b>12:00 PM–2:00 PM</b><br><b>6:00 PM–9:00 PM</b><br><b>9:00 PM–10:00 PM</b></div>";}}catch(e){area.textContent="Could not calculate: "+e.message;}};
+function hourLabel(h){const a=h%12||12;return a+":00 "+(h>=12?"PM":"AM");}
+window.changeMonth=function(delta){calendarDate.setMonth(calendarDate.getMonth()+delta);renderCalendar();};
+function renderCalendar(){const grid=$("calendarGrid");if(!grid)return;const y=calendarDate.getFullYear(),m=calendarDate.getMonth();$("calendarTitle").textContent=calendarDate.toLocaleString("en-IN",{month:"long",year:"numeric"});grid.innerHTML="";["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(x=>{const d=document.createElement("div");d.className="muted";d.style.textAlign="center";d.textContent=x;grid.append(d);});const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),today=new Date();for(let i=0;i<first;i++){const d=document.createElement("div");d.className="day muted-day";grid.append(d);}for(let n=1;n<=days;n++){const date=new Date(y,m,n),cell=document.createElement("div");cell.className="day"+(date.toDateString()===today.toDateString()?" today":"");const num=document.createElement("b");num.textContent=n;cell.append(num);scheduledCache.filter(p=>{const dt=new Date(p.scheduled_at);return dt.getFullYear()===y&&dt.getMonth()===m&&dt.getDate()===n;}).forEach(p=>{const ev=document.createElement("span");ev.className="day-event";ev.textContent=(p.media_type||"Post")+" · "+(p.status||"");cell.append(ev);});grid.append(cell);}}
+window.generateCaption=function(){const topic=$("captionTopic").value.trim()||"Free Fire tournament",tone=$("captionTone").value,cta=$("captionCTA").value;const openers={hype:"🔥 READY TO DOMINATE?",professional:"🏆 AYUSH FF ESPORTS UPDATE",friendly:"🎮 Squad ready hai?",urgent:"⏳ LAST CALL, PLAYERS!"};const calls={comment:"👇 Comment your IGN below.",dm:"📩 DM us to register.",follow:"➕ Follow @ayush_ff_esports for more updates.",share:"🤝 Apne squad ke saath share karo."};const text=openers[tone]+"\n\n"+topic+"\n\nJoin the action with AYUSH FF ESPORTS. Bring your best game, play fair and give it your all!\n\n"+calls[cta]+"\n\n#AYUSHFFESPORTS #FreeFire #FreeFireIndia #FreeFireTournament #GamingIndia #EsportsIndia #Booyah";$("generatedCaption").value=text;};
+window.copyGeneratedCaption=()=>copyText($("generatedCaption").value);
+window.useCaptionInScheduler=function(){$("postCaption").value=$("generatedCaption").value;showPage("scheduled");};
+function getCompetitors(){try{return JSON.parse(localStorage.getItem("ayush_competitors")||"[]");}catch(e){return [];}}
+window.addCompetitor=function(){const username=$("competitorUsername").value.trim().replace(/^@/,""),url=$("competitorUrl").value.trim(),followers=$("competitorFollowers").value,notes=$("competitorNotes").value.trim();if(!username||!url||!/^https:\/\/(www\.)?instagram\.com\//i.test(url)){alert("Username aur valid public Instagram URL enter karo.");return;}const list=getCompetitors();list.push({id:Date.now(),username,url,followers:followers===""?null:Number(followers),notes,updated:new Date().toISOString()});localStorage.setItem("ayush_competitors",JSON.stringify(list));["competitorUsername","competitorUrl","competitorFollowers","competitorNotes"].forEach(id=>$(id).value="");renderCompetitors();};
+window.renderCompetitors=function(){const area=$("competitorList");if(!area)return;const list=getCompetitors();area.innerHTML="";if(!list.length){area.textContent="No profiles added yet.";return;}list.forEach(p=>{const c=document.createElement("div");c.className="comment";const h=document.createElement("strong");h.textContent="@"+p.username;const info=document.createElement("p");info.textContent="Followers: "+(p.followers===null?"Not entered":formatNumber(p.followers))+" · Updated: "+new Date(p.updated).toLocaleDateString();const notes=document.createElement("p");notes.textContent=p.notes||"No notes";const a=document.createElement("a");a.href=p.url;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="Open public profile ↗";const edit=document.createElement("button");edit.className="secondary small-btn";edit.textContent="Update followers";edit.onclick=()=>{const v=prompt("Enter current follower count:",p.followers??"");if(v===null)return;if(v.trim()===""||!Number.isFinite(Number(v))||Number(v)<0){alert("Valid follower count enter karo.");return;}p.followers=Number(v);p.updated=new Date().toISOString();localStorage.setItem("ayush_competitors",JSON.stringify(list));renderCompetitors();};const del=document.createElement("button");del.className="secondary danger small-btn";del.textContent="Delete";del.style.marginLeft="7px";del.onclick=()=>{if(confirm("Delete this tracked profile?")){localStorage.setItem("ayush_competitors",JSON.stringify(list.filter(x=>x.id!==p.id)));renderCompetitors();}};c.append(h,info,notes,a,document.createElement("br"),edit,del);area.append(c);});};
+window.enableNotifications=async function(){if(!("Notification"in window)){$("notificationPermission").textContent="This browser does not support notifications.";return;}const p=await Notification.requestPermission();$("notificationPermission").textContent="Notification permission: "+p;};
+function renderNotifications(){const a=$("notificationList");if(!a)return;a.innerHTML="";if(!notifications.length){a.textContent="No new status updates detected yet.";return;}notifications.slice(0,30).forEach(n=>{const d=document.createElement("div");d.className="comment";const s=document.createElement("strong");s.textContent=n.text;const sm=document.createElement("small");sm.textContent=n.date;d.append(s,document.createElement("br"),sm);a.append(d);});}
+window.clearNotifications=function(){notifications=[];renderNotifications();};
+function copyText(text){if(!text){alert("Nothing to copy.");return;}if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(()=>alert("Copied!")).catch(()=>fallbackCopy(text));else fallbackCopy(text);}
+function fallbackCopy(text){const t=document.createElement("textarea");t.value=text;document.body.append(t);t.select();document.execCommand("copy");t.remove();alert("Copied!");}
+window.exportAnalyticsCSV=function(){if(!latestAnalytics&&!latestMediaPosts.length){alert("Pehle Analytics load karo.");return;}const rows=[["Metric","Value"]];const t=latestAnalytics?.totals||{};Object.entries(t).forEach(([k,v])=>rows.push([k,v]));rows.push([],["Post caption","Likes","Comments","Reach","Views","Shares","Saves","Interactions","Timestamp"]);latestMediaPosts.forEach(p=>rows.push([p.caption||"",p.likes??"",p.comments??"",p.reach??"",p.views??"",p.shares??"",p.saves??"",p.totalInteractions??"",p.timestamp||""]));const csv=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="ayush-auto-analytics.csv";a.click();URL.revokeObjectURL(url);};
+window.exportAnalyticsPDF=function(){showPage("analytics");window.print();};
+window.saveCustomization=function(){const c={accent:$("accentChoice").value,compact:$("compactMode").checked,comment:$("showCommentStats").checked,upcoming:$("showUpcoming").checked};localStorage.setItem("ayush_dashboard_custom",JSON.stringify(c));applyCustomization();};
+function applyCustomization(){let c={};try{c=JSON.parse(localStorage.getItem("ayush_dashboard_custom")||"{}");}catch(e){}document.documentElement.style.setProperty("--accent",c.accent||"#1677ff");document.body.classList.toggle("compact",!!c.compact);const commentCard=$("total")?.closest(".card");const upcoming=$("dashboardUpcoming")?.closest(".card");if(commentCard)commentCard.style.display=c.comment===false?"none":"";if(upcoming)upcoming.style.display=c.upcoming===false?"none":"";$("accentChoice").value=c.accent||"#1677ff";$("compactMode").checked=!!c.compact;$("showCommentStats").checked=c.comment!==false;$("showUpcoming").checked=c.upcoming!==false;}
+window.resetCustomization=function(){localStorage.removeItem("ayush_dashboard_custom");applyCustomization();};
+applyCustomization();renderCalendar();refreshAll();setInterval(()=>{refreshAll();if(adminKey)loadScheduledPosts();},30000);
 </script>
-
 </body>
 </html>
