@@ -18,8 +18,9 @@ h2{font-size:18px;margin:0 0 15px}
 .stat{background:#172743;padding:17px;border-radius:12px}
 .stat small{color:#9eb1cc}
 .stat strong{display:block;font-size:27px;margin-top:9px}
-input,textarea{width:100%;background:#081426;color:white;border:1px solid #344967;border-radius:8px;padding:12px;margin:7px 0 12px}
+input,textarea,select{width:100%;background:#081426;color:white;border:1px solid #344967;border-radius:8px;padding:12px;margin:7px 0 12px}
 textarea{min-height:90px;resize:vertical}
+input[type=checkbox]{width:22px;height:22px}
 button{border:0;border-radius:8px;padding:11px 16px;background:#1677ff;color:white;font-weight:bold;cursor:pointer}
 button.secondary{background:#344967}
 button:disabled{opacity:.5}
@@ -29,7 +30,6 @@ button:disabled{opacity:.5}
 .bad{color:#ff7070}
 .comment{border-top:1px solid #293b56;padding:13px 0;overflow-wrap:anywhere}
 .comment small{color:#9eb1cc}
-.pill{display:inline-block;padding:5px 9px;border-radius:20px;background:#263958;font-size:12px}
 footer{text-align:center;color:#7386a3;padding:20px}
 #message{margin:12px 0;color:#38df9a}
 </style>
@@ -37,350 +37,407 @@ footer{text-align:center;color:#7386a3;padding:20px}
 <body>
 
 <header>
-  <h1>⚡ AYUSH AUTO</h1>
-  <p>AYUSH FF ESPORTS · Instagram Automation Dashboard</p>
+<h1>⚡ AYUSH AUTO</h1>
+<p>AYUSH FF ESPORTS · Instagram Automation Dashboard</p>
 </header>
 
 <main>
 
 <section class="card">
-  <div class="row">
-    <div>
-      <h2>Instagram Connection</h2>
-      <div id="connection" class="status">Checking connection...</div>
-    </div>
-    <button class="secondary" onclick="refreshAll()">↻ Refresh</button>
-  </div>
-  <p id="uptime" style="color:#9eb1cc"></p>
+<div class="row">
+<div>
+<h2>Instagram Connection</h2>
+<div id="connection" class="status">Checking connection...</div>
+</div>
+<button class="secondary" onclick="refreshAll()">↻ Refresh</button>
+</div>
+<p id="uptime" style="color:#9eb1cc"></p>
 </section>
 
 <section class="card">
-  <h2>📊 Comment Statistics</h2>
-  <div class="grid">
-    <div class="stat"><small>Total Comments</small><strong id="total">0</strong></div>
-    <div class="stat"><small>Replies Sent</small><strong id="replied">0</strong></div>
-    <div class="stat"><small>Failed</small><strong id="failed">0</strong></div>
-    <div class="stat"><small>Pending</small><strong id="pending">0</strong></div>
-    <div class="stat"><small>Ignored</small><strong id="ignored">0</strong></div>
-  </div>
+<h2>📊 Comment Statistics</h2>
+<div class="grid">
+<div class="stat"><small>Total Comments</small><strong id="total">0</strong></div>
+<div class="stat"><small>Replies Sent</small><strong id="replied">0</strong></div>
+<div class="stat"><small>Failed</small><strong id="failed">0</strong></div>
+<div class="stat"><small>Pending</small><strong id="pending">0</strong></div>
+<div class="stat"><small>Ignored</small><strong id="ignored">0</strong></div>
+</div>
 </section>
 
 <section class="card">
-  <h2>⚙️ Auto Reply Settings</h2>
-  <div class="row">
-    <div>
-      <strong>Automatic Comment Reply</strong>
-      <p style="color:#9eb1cc;margin:6px 0">Enable or disable automatic replies.</p>
-    </div>
-    <label>
-      <input id="autoReply" type="checkbox" style="width:22px;height:22px">
-    </label>
-  </div>
-  <label>Reply Message</label>
-  <textarea id="replyText" maxlength="500" placeholder="Enter your reply message"></textarea>
-  <button onclick="saveSettings()">Save Settings</button>
-  <div id="message"></div>
+<h2>⚙️ Auto Reply Settings</h2>
+<div class="row">
+<div>
+<strong>Automatic Comment Reply</strong>
+<p style="color:#9eb1cc;margin:6px 0">Enable or disable automatic replies.</p>
+</div>
+<input id="autoReply" type="checkbox">
+</div>
+<label>Reply Message</label>
+<textarea id="replyText" maxlength="500" placeholder="Enter your reply message"></textarea>
+<button onclick="saveSettings()">Save Settings</button>
+<div id="message"></div>
 </section>
 
 <section class="card">
-  <div class="row">
-    <h2>💬 Recent Comments</h2>
-    <button class="secondary" onclick="loadComments()">Load Comments</button>
-  </div>
-  <div id="comments">Enter your admin key to load comments.</div>
+<div class="row">
+<h2>💬 Recent Comments</h2>
+<button class="secondary" onclick="loadComments()">Load Comments</button>
+</div>
+<div id="comments">Enter your admin key to load comments.</div>
 </section>
 
 <section class="card">
-  <h2>🔐 Admin Access</h2>
-  <p style="color:#9eb1cc">Enter your existing ADMIN_API_KEY from Render environment variables. Never share it with anyone.</p>
-  <input id="adminKey" type="password" placeholder="Admin API Key">
-  <button onclick="saveKey()">Unlock Dashboard</button>
-  <button class="secondary" onclick="clearKey()">Lock</button>
-  <div id="adminMessage"></div>
+<h2>🔐 Admin Access</h2>
+<p style="color:#9eb1cc">Enter your existing ADMIN_API_KEY from Render environment variables. Never share it with anyone.</p>
+<input id="adminKey" type="password" placeholder="Admin API Key">
+<button onclick="saveKey()">Unlock Dashboard</button>
+<button class="secondary" onclick="clearKey()">Lock</button>
+<div id="adminMessage"></div>
 </section>
+
 <section class="card">
-  <h2>📅 Scheduled Instagram Posts</h2>
+<h2>📅 Scheduled Instagram Posts</h2>
 
-  <label>Post Type</label>
-  <select id="mediaType">
-    <option value="image">Photo</option>
-    <option value="reel">Reel</option>
-  </select>
+<label>Post Type</label>
+<select id="mediaType">
+<option value="image">Photo</option>
+<option value="reel">Reel</option>
+</select>
 
-  <label>Public HTTPS Media URL</label>
-  <input id="mediaUrl" type="url"
-    placeholder="https://example.com/photo.jpg">
+<label>Public HTTPS Media URL</label>
+<input id="mediaUrl" type="url" placeholder="https://example.com/photo.jpg">
 
-  <label>Caption</label>
-  <textarea id="postCaption"
-    placeholder="Write your Instagram caption..."></textarea>
+<label>Caption</label>
+<textarea id="postCaption" placeholder="Write your Instagram caption..."></textarea>
 
-  <label>Publish Date & Time</label>
-  <input id="scheduledAt" type="datetime-local">
+<label>Publish Date & Time</label>
+<input id="scheduledAt" type="datetime-local">
 
-  <button onclick="schedulePost()">Schedule Post</button>
+<button onclick="schedulePost()">Schedule Post</button>
+<div id="scheduleMessage"></div>
 
-  <div id="scheduleMessage"></div>
+<hr style="border-color:#293b56;margin:20px 0">
 
-  <hr style="border-color:#293b56;margin:20px 0">
-
-  <button class="secondary" onclick="loadScheduledPosts()">
-    Refresh Scheduled Posts
-  </button>
-
-  <div id="scheduledPosts">No posts loaded.</div>
+<button class="secondary" onclick="loadScheduledPosts()">Refresh Scheduled Posts</button>
+<div id="scheduledPosts">No posts loaded.</div>
 </section>
+
 </main>
+
 <footer>AYUSH FF ESPORTS · AYUSH AUTO</footer>
 
 <script>
-const API = "https://ayush-ff-backend.onrender.com";
+const API="https://ayush-ff-backend.onrender.com";
 
-let adminKey = sessionStorage.getItem("ayush_admin_key") || "";
+let adminKey=sessionStorage.getItem("ayush_admin_key")||"";
 
 function headers(){
-  return {
-    "Content-Type":"application/json",
-    "X-Admin-Key":adminKey
-  };
+return {
+"Content-Type":"application/json",
+"X-Admin-Key":adminKey
+};
 }
 
-async function api(path, options={}){
-  const response = await fetch(API + path, options);
-  const data = await response.json();
-  if(!response.ok) throw new Error(data.message || data.error || "Request failed");
-  return data;
+async function api(path,options={}){
+const response=await fetch(API+path,options);
+const data=await response.json();
+
+if(!response.ok){
+throw new Error(data.message||data.error||"Request failed");
 }
+return data;
+}
+
+// ADMIN ACCESS
 
 function saveKey(){
-  const value = document.getElementById("adminKey").value.trim();
-  if(!value){
-    document.getElementById("adminMessage").textContent="Enter admin key.";
-    return;
-  }
-  adminKey=value;
-  sessionStorage.setItem("ayush_admin_key",value);
-  document.getElementById("adminKey").value="";
-  document.getElementById("adminMessage").textContent="Key saved for this browser session.";
-  async function schedulePost(){
-  if(!adminKey){
-    alert("Unlock dashboard first.");
-    return;
-  }
+const value=document.getElementById("adminKey").value.trim();
 
-  const mediaType=document.getElementById("mediaType").value;
-  const mediaUrl=document.getElementById("mediaUrl").value.trim();
-  const caption=document.getElementById("postCaption").value;
-  const scheduledAt=document.getElementById("scheduledAt").value;
-
-  if(!mediaUrl || !scheduledAt){
-    alert("Media URL aur date/time required hain.");
-    return;
-  }
-
-  const date=new Date(scheduledAt);
-
-  if(isNaN(date.getTime()) || date<=new Date()){
-    alert("Future date and time select karo.");
-    return;
-  }
-
-  const message=document.getElementById("scheduleMessage");
-  message.textContent="Scheduling...";
-
-  try{
-    await api("/api/schedule",{
-      method:"POST",
-      headers:headers(),
-      body:JSON.stringify({
-        mediaType,
-        mediaUrl,
-        caption,
-        scheduledAt:date.toISOString()
-      })
-    });
-
-    message.textContent="Post scheduled successfully!";
-    document.getElementById("mediaUrl").value="";
-    document.getElementById("postCaption").value="";
-    await loadScheduledPosts();
-  }catch(error){
-    message.textContent="Error: "+error.message;
-  }
+if(!value){
+document.getElementById("adminMessage").textContent="Enter admin key.";
+return;
 }
 
-async function loadScheduledPosts(){
-  if(!adminKey)return;
+adminKey=value;
+sessionStorage.setItem("ayush_admin_key",value);
+document.getElementById("adminKey").value="";
+document.getElementById("adminMessage").textContent="Key saved for this browser session.";
 
-  const area=document.getElementById("scheduledPosts");
-  area.textContent="Loading...";
-
-  try{
-    const data=await api("/api/scheduled-posts",{
-      headers:headers()
-    });
-
-    area.innerHTML="";
-
-    if(!data.posts.length){
-      area.textContent="No scheduled posts.";
-      return;
-    }
-
-    data.posts.forEach(post=>{
-      const item=document.createElement("div");
-      item.className="comment";
-
-      const title=document.createElement("strong");
-      title.textContent=post.media_type.toUpperCase()+" · "+post.status;
-
-      const details=document.createElement("p");
-      details.textContent=new Date(post.scheduled_at).toLocaleString();
-
-      item.append(title,details);
-
-      if(post.status==="pending"){
-        const cancel=document.createElement("button");
-        cancel.className="secondary";
-        cancel.textContent="Cancel";
-        cancel.onclick=()=>cancelScheduledPost(post.id);
-        item.appendChild(cancel);
-      }
-
-      area.appendChild(item);
-    });
-  }catch(error){
-    area.textContent="Error: "+error.message;
-  }
-}
-
-async function cancelScheduledPost(id){
-  if(!confirm("Cancel this scheduled post?"))return;
-
-  try{
-    await api("/api/scheduled-posts/"+id,{
-      method:"DELETE",
-      headers:headers()
-    });
-
-    await loadScheduledPosts();
-  }catch(error){
-    alert(error.message);
-  }
-}
-  refreshAll();
+refreshAll();
+loadScheduledPosts();
 }
 
 function clearKey(){
-  sessionStorage.removeItem("ayush_admin_key");
-  adminKey="";
-  document.getElementById("adminMessage").textContent="Dashboard locked.";
-  document.getElementById("comments").textContent="Unlock dashboard to view comments.";
+sessionStorage.removeItem("ayush_admin_key");
+adminKey="";
+
+document.getElementById("adminMessage").textContent="Dashboard locked.";
+document.getElementById("comments").textContent="Unlock dashboard to view comments.";
+document.getElementById("scheduledPosts").textContent="Unlock dashboard to view scheduled posts.";
+
+["total","replied","failed","pending","ignored"].forEach(id=>{
+document.getElementById(id).textContent="0";
+});
 }
+
+// INSTAGRAM STATUS
 
 async function loadStatus(){
-  try{
-    const data=await api("/api/status");
-    document.getElementById("connection").innerHTML=
-      data.connected ? '<span class="good">● Instagram Connected</span>' :
-      '<span class="bad">● Instagram Disconnected</span>';
+try{
+const data=await api("/api/status");
 
-    document.getElementById("uptime").textContent=
-      "Server uptime: "+Math.floor(data.uptimeSeconds/60)+" minutes";
+document.getElementById("connection").innerHTML=
+data.connected
+?'<span class="good">● Instagram Connected</span>'
+:'<span class="bad">● Instagram Disconnected</span>';
 
-    document.getElementById("autoReply").checked=
-      Boolean(data.automation.autoCommentReply);
+document.getElementById("uptime").textContent=
+"Server uptime: "+Math.floor(data.uptimeSeconds/60)+" minutes";
 
-    document.getElementById("replyText").value=
-      data.automation.autoReplyText || "";
-  }catch(error){
-    document.getElementById("connection").textContent="Backend connection failed: "+error.message;
-  }
+document.getElementById("autoReply").checked=
+Boolean(data.automation.autoCommentReply);
+
+document.getElementById("replyText").value=
+data.automation.autoReplyText||"";
+
+}catch(error){
+document.getElementById("connection").textContent=
+"Backend connection failed: "+error.message;
 }
+}
+
+// COMMENT STATISTICS
 
 async function loadStats(){
-  if(!adminKey)return;
-  try{
-    const data=await api("/api/comments/stats",{
-      headers:headers()
-    });
-    const s=data.statistics;
-    document.getElementById("total").textContent=s.total;
-    document.getElementById("replied").textContent=s.replied;
-    document.getElementById("failed").textContent=s.failed;
-    document.getElementById("pending").textContent=s.pending;
-    document.getElementById("ignored").textContent=s.ignored;
-  }catch(error){
-    document.getElementById("adminMessage").textContent=error.message;
-  }
+if(!adminKey)return;
+
+try{
+const data=await api("/api/comments/stats",{headers:headers()});
+const s=data.statistics;
+
+document.getElementById("total").textContent=s.total;
+document.getElementById("replied").textContent=s.replied;
+document.getElementById("failed").textContent=s.failed;
+document.getElementById("pending").textContent=s.pending;
+document.getElementById("ignored").textContent=s.ignored;
+
+}catch(error){
+document.getElementById("adminMessage").textContent=error.message;
 }
+}
+
+// COMMENTS
 
 async function loadComments(){
-  if(!adminKey){
-    document.getElementById("comments").textContent="Unlock dashboard first.";
-    return;
-  }
-  const area=document.getElementById("comments");
-  area.textContent="Loading comments...";
-  try{
-    const data=await api("/api/comments?limit=50",{
-      headers:headers()
-    });
-    area.innerHTML="";
-    if(!data.comments.length){
-      area.textContent="No comments found yet.";
-      return;
-    }
-    data.comments.forEach(c=>{
-      const item=document.createElement("div");
-      item.className="comment";
-      const name=document.createElement("strong");
-      name.textContent="@"+(c.username || "Unknown");
-      const text=document.createElement("p");
-      text.textContent=c.comment_text || "(No text)";
-      const details=document.createElement("small");
-      details.textContent="Status: "+c.reply_status+" · "+(c.created_at || "");
-      item.append(name,text,details);
-      area.appendChild(item);
-    });
-  }catch(error){
-    area.textContent="Error: "+error.message;
-  }
+if(!adminKey){
+document.getElementById("comments").textContent="Unlock dashboard first.";
+return;
 }
+
+const area=document.getElementById("comments");
+area.textContent="Loading comments...";
+
+try{
+const data=await api("/api/comments?limit=50",{headers:headers()});
+
+area.innerHTML="";
+
+if(!data.comments.length){
+area.textContent="No comments found yet.";
+return;
+}
+
+data.comments.forEach(c=>{
+const item=document.createElement("div");
+item.className="comment";
+
+const name=document.createElement("strong");
+name.textContent="@"+(c.username||"Unknown");
+
+const commentText=document.createElement("p");
+commentText.textContent=c.comment_text||"(No text)";
+
+const details=document.createElement("small");
+details.textContent="Status: "+c.reply_status+" · "+(c.created_at||"");
+
+item.append(name,commentText,details);
+area.appendChild(item);
+});
+
+}catch(error){
+area.textContent="Error: "+error.message;
+}
+}
+
+// SAVE AUTO REPLY SETTINGS
 
 async function saveSettings(){
-  if(!adminKey){
-    alert("Unlock dashboard first.");
-    return;
-  }
-  const message=document.getElementById("message");
-  message.textContent="Saving...";
-  try{
-    const data=await api("/api/settings",{
-      method:"POST",
-      headers:headers(),
-      body:JSON.stringify({
-        autoCommentReply:document.getElementById("autoReply").checked,
-        autoReplyText:document.getElementById("replyText").value.trim()
-      })
-    });
-    message.textContent="Settings saved successfully!";
-    await loadStatus();
-  }catch(error){
-    message.textContent="Error: "+error.message;
-  }
+if(!adminKey){
+alert("Unlock dashboard first.");
+return;
 }
 
+const message=document.getElementById("message");
+message.textContent="Saving...";
+
+try{
+await api("/api/settings",{
+method:"POST",
+headers:headers(),
+body:JSON.stringify({
+autoCommentReply:document.getElementById("autoReply").checked,
+autoReplyText:document.getElementById("replyText").value.trim()
+})
+});
+
+message.textContent="Settings saved successfully!";
+await loadStatus();
+
+}catch(error){
+message.textContent="Error: "+error.message;
+}
+}
+
+// SCHEDULE POST
+
+async function schedulePost(){
+if(!adminKey){
+alert("Unlock dashboard first.");
+return;
+}
+
+const mediaType=document.getElementById("mediaType").value;
+const mediaUrl=document.getElementById("mediaUrl").value.trim();
+const caption=document.getElementById("postCaption").value;
+const scheduledAt=document.getElementById("scheduledAt").value;
+
+if(!mediaUrl||!scheduledAt){
+alert("Media URL aur date/time required hain.");
+return;
+}
+
+if(!mediaUrl.startsWith("https://")){
+alert("Public HTTPS URL use karo.");
+return;
+}
+
+const date=new Date(scheduledAt);
+
+if(isNaN(date.getTime())||date<=new Date()){
+alert("Future date and time select karo.");
+return;
+}
+
+const message=document.getElementById("scheduleMessage");
+message.textContent="Scheduling...";
+
+try{
+await api("/api/schedule",{
+method:"POST",
+headers:headers(),
+body:JSON.stringify({
+mediaType,
+mediaUrl,
+caption,
+scheduledAt:date.toISOString()
+})
+});
+
+message.textContent="Post scheduled successfully!";
+document.getElementById("mediaUrl").value="";
+document.getElementById("postCaption").value="";
+document.getElementById("scheduledAt").value="";
+
+await loadScheduledPosts();
+
+}catch(error){
+message.textContent="Error: "+error.message;
+}
+}
+
+// LOAD SCHEDULED POSTS
+
+async function loadScheduledPosts(){
+if(!adminKey){
+document.getElementById("scheduledPosts").textContent="Unlock dashboard first.";
+return;
+}
+
+const area=document.getElementById("scheduledPosts");
+area.textContent="Loading...";
+
+try{
+const data=await api("/api/scheduled-posts",{headers:headers()});
+
+area.innerHTML="";
+
+if(!data.posts||!data.posts.length){
+area.textContent="No scheduled posts.";
+return;
+}
+
+data.posts.forEach(post=>{
+const item=document.createElement("div");
+item.className="comment";
+
+const title=document.createElement("strong");
+title.textContent=(post.media_type||"POST").toUpperCase()+" · "+post.status;
+
+const details=document.createElement("p");
+details.textContent=new Date(post.scheduled_at).toLocaleString();
+
+item.append(title,details);
+
+if(post.status==="pending"){
+const cancel=document.createElement("button");
+cancel.className="secondary";
+cancel.textContent="Cancel";
+cancel.onclick=()=>cancelScheduledPost(post.id);
+item.appendChild(cancel);
+}
+
+area.appendChild(item);
+});
+
+}catch(error){
+area.textContent="Error: "+error.message;
+}
+}
+
+// CANCEL SCHEDULED POST
+
+async function cancelScheduledPost(id){
+if(!confirm("Cancel this scheduled post?"))return;
+
+try{
+await api("/api/scheduled-posts/"+id,{
+method:"DELETE",
+headers:headers()
+});
+
+await loadScheduledPosts();
+
+}catch(error){
+alert(error.message);
+}
+}
+
+// REFRESH DASHBOARD
+
 async function refreshAll(){
-  await loadStatus();
-  if(adminKey){
-    await loadStats();
-    await loadComments();
-  }
+await loadStatus();
+
+if(adminKey){
+await loadStats();
+await loadComments();
+}
 }
 
 refreshAll();
 setInterval(refreshAll,30000);
+
 </script>
 </body>
 </html>
