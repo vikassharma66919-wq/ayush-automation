@@ -4,45 +4,101 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AYUSH AUTO Dashboard</title>
+<title>AYUSH AUTO</title>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080e1c;color:#fff;font-family:Arial,sans-serif}
-header{padding:22px;background:#101b31;border-bottom:1px solid #263958}
-header h1{margin:0;color:#38a0ff;font-size:23px}
-header p{color:#9eb1cc;margin:7px 0 0}
-main{max-width:1100px;margin:auto;padding:20px}
-.card{background:#111d32;border:1px solid #263958;border-radius:14px;padding:18px;margin-bottom:17px}
-h2{font-size:18px;margin:0 0 15px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
-.stat{background:#172743;padding:17px;border-radius:12px}
+button,input,textarea,select{font:inherit}
+header{height:68px;background:#101b31;border-bottom:1px solid #263958;display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:5}
+.brand{font-size:21px;font-weight:bold;color:#38a0ff}
+.header-right{display:flex;align-items:center;gap:12px}
+.menu-btn{display:none}
+.layout{display:flex;min-height:calc(100vh - 68px)}
+.sidebar{width:235px;background:#0d1729;border-right:1px solid #263958;padding:20px 12px;flex-shrink:0}
+.nav-title{font-size:11px;color:#7185a3;padding:10px 12px}
+.nav-btn{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:13px 14px;border:0;border-radius:9px;background:transparent;color:#aebdd3;margin:3px 0;cursor:pointer}
+.nav-btn:hover,.nav-btn.active{background:#17345a;color:#fff}
+.nav-btn.active{border-left:3px solid #38a0ff}
+.content{flex:1;min-width:0;padding:24px;max-width:1250px;margin:0 auto;width:100%}
+.page{display:none}
+.page.active{display:block}
+.page-heading{margin-bottom:20px}
+.page-heading h1{font-size:25px;margin:0 0 8px}
+.page-heading p{color:#9eb1cc;margin:0}
+.card{background:#111d32;border:1px solid #263958;border-radius:14px;padding:19px;margin-bottom:17px}
+.card h2{font-size:18px;margin:0 0 15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px}
+.stat{background:#172743;padding:18px;border-radius:12px}
 .stat small{color:#9eb1cc}
-.stat strong{display:block;font-size:27px;margin-top:9px}
-input,textarea,select{width:100%;background:#081426;color:white;border:1px solid #344967;border-radius:8px;padding:12px;margin:7px 0 12px}
-textarea{min-height:90px;resize:vertical}
-input[type=checkbox]{width:22px;height:22px}
-button{border:0;border-radius:8px;padding:11px 16px;background:#1677ff;color:white;font-weight:bold;cursor:pointer}
-button.secondary{background:#344967}
+.stat strong{display:block;font-size:27px;margin-top:9px;color:#fff}
+input,textarea,select{width:100%;background:#081426;color:white;border:1px solid #344967;border-radius:8px;padding:12px;margin:7px 0 14px}
+textarea{min-height:95px;resize:vertical}
+input[type=checkbox]{width:22px;height:22px;margin:0}
+label{font-size:14px;color:#c5d3e7}
+button.primary,.primary{border:0;border-radius:8px;padding:11px 17px;background:#1677ff;color:white;font-weight:bold;cursor:pointer}
+button.secondary{border:0;border-radius:8px;padding:11px 16px;background:#344967;color:white;font-weight:bold;cursor:pointer}
+button.danger{background:#9b303c;color:white}
+button:disabled{opacity:.5;cursor:not-allowed}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.status{color:#ffc857}
 .good{color:#38df9a}
 .bad{color:#ff7070}
-.comment{border-top:1px solid #293b56;padding:13px 0;overflow-wrap:anywhere}
+.status{color:#ffc857}
+.comment{border-top:1px solid #293b56;padding:14px 0;overflow-wrap:anywhere}
+.comment p{color:#d5dfed}
 .comment small{color:#9eb1cc}
+.muted{color:#9eb1cc}
+.message{margin-top:12px;color:#38df9a;font-size:14px}
+.pill{display:inline-block;padding:5px 10px;border-radius:20px;background:#263958;font-size:12px}
+.info{background:#172743;border:1px solid #344967;padding:14px;border-radius:10px;color:#b7c9e1;line-height:1.6}
 footer{text-align:center;color:#7386a3;padding:20px}
-#message{margin:12px 0;color:#38df9a}
+@media(max-width:760px){
+.menu-btn{display:block}
+.layout{display:block}
+.sidebar{display:none;width:100%;border-right:0;border-bottom:1px solid #263958}
+.sidebar.open{display:block}
+.content{padding:16px}
+header{padding:0 15px}
+.page-heading h1{font-size:22px}
+}
 </style>
 </head>
+
 <body>
 
 <header>
-<h1>⚡ AYUSH AUTO</h1>
-<p>AYUSH FF ESPORTS · Instagram Automation Dashboard</p>
+<div class="brand">⚡ AYUSH AUTO</div>
+<div class="header-right">
+<span class="muted">AYUSH FF ESPORTS</span>
+<button class="secondary menu-btn" onclick="toggleMenu()">☰ Menu</button>
+</div>
 </header>
 
-<main>
+<div class="layout">
 
-<section class="card">
+<aside class="sidebar" id="sidebar">
+<div class="nav-title">MAIN MENU</div>
+
+<button class="nav-btn active" data-page="dashboard" onclick="showPage('dashboard')">🏠 Dashboard</button>
+<button class="nav-btn" data-page="comments" onclick="showPage('comments')">💬 Comments</button>
+<button class="nav-btn" data-page="autoreply" onclick="showPage('autoreply')">🤖 Auto Reply</button>
+<button class="nav-btn" data-page="scheduled" onclick="showPage('scheduled')">📅 Scheduled Posts</button>
+<button class="nav-btn" data-page="analytics" onclick="showPage('analytics')">📊 Analytics</button>
+
+<div class="nav-title">MANAGEMENT</div>
+<button class="nav-btn" data-page="settings" onclick="showPage('settings')">⚙️ Settings</button>
+</aside>
+
+<main class="content">
+
+<!-- DASHBOARD PAGE -->
+<section class="page active" id="page-dashboard">
+<div class="page-heading">
+<h1>Dashboard</h1>
+<p>Welcome to AYUSH AUTO Instagram Automation.</p>
+</div>
+
+<div class="card">
 <div class="row">
 <div>
 <h2>Instagram Connection</h2>
@@ -50,11 +106,11 @@ footer{text-align:center;color:#7386a3;padding:20px}
 </div>
 <button class="secondary" onclick="refreshAll()">↻ Refresh</button>
 </div>
-<p id="uptime" style="color:#9eb1cc"></p>
-</section>
+<p id="uptime" class="muted"></p>
+</div>
 
-<section class="card">
-<h2>📊 Comment Statistics</h2>
+<div class="card">
+<h2>📊 Comment Overview</h2>
 <div class="grid">
 <div class="stat"><small>Total Comments</small><strong id="total">0</strong></div>
 <div class="stat"><small>Replies Sent</small><strong id="replied">0</strong></div>
@@ -62,39 +118,75 @@ footer{text-align:center;color:#7386a3;padding:20px}
 <div class="stat"><small>Pending</small><strong id="pending">0</strong></div>
 <div class="stat"><small>Ignored</small><strong id="ignored">0</strong></div>
 </div>
+</div>
+
+<div class="card">
+<h2>Quick Actions</h2>
+<div class="row">
+<button class="primary" onclick="showPage('comments')">View Comments</button>
+<button class="primary" onclick="showPage('autoreply')">Auto Reply Settings</button>
+<button class="primary" onclick="showPage('scheduled')">Schedule Post</button>
+</div>
+</div>
 </section>
 
-<section class="card">
-<h2>⚙️ Auto Reply Settings</h2>
+<!-- COMMENTS PAGE -->
+<section class="page" id="page-comments">
+<div class="page-heading">
+<h1>Comments</h1>
+<p>View Instagram comments and automatic reply status.</p>
+</div>
+
+<div class="card">
 <div class="row">
+<h2>Recent Comments</h2>
+<button class="secondary" onclick="loadComments()">↻ Refresh Comments</button>
+</div>
+<div id="comments">Unlock admin access to view comments.</div>
+</div>
+</section>
+
+<!-- AUTO REPLY PAGE -->
+<section class="page" id="page-autoreply">
+<div class="page-heading">
+<h1>Auto Reply</h1>
+<p>Manage automatic Instagram comment replies.</p>
+</div>
+
+<div class="card">
+<h2>⚙️ Reply Configuration</h2>
+<div class="row">
+<div>
 <strong>Automatic Comment Reply</strong>
+<p class="muted">Turn automatic replies on or off.</p>
+</div>
 <input id="autoReply" type="checkbox">
 </div>
+
 <label>Reply Message</label>
-<textarea id="replyText" maxlength="500" placeholder="Enter your reply message"></textarea>
-<button onclick="saveSettings()">Save Settings</button>
-<div id="message"></div>
-</section>
+<textarea id="replyText" maxlength="500" placeholder="Enter your automatic reply message"></textarea>
 
-<section class="card">
-<div class="row">
-<h2>💬 Recent Comments</h2>
-<button class="secondary" onclick="loadComments()">Load Comments</button>
+<button class="primary" onclick="saveSettings()">Save Settings</button>
+<div id="message" class="message"></div>
 </div>
-<div id="comments">Enter your admin key to load comments.</div>
+
+<div class="card">
+<h2>How it works</h2>
+<div class="info">
+When automatic replies are enabled, the connected Instagram account can automatically reply to eligible incoming comments using the message saved above.
+</div>
+</div>
 </section>
 
-<section class="card">
-<h2>🔐 Admin Access</h2>
-<p style="color:#9eb1cc">Enter your existing ADMIN_API_KEY from Render. Never share it.</p>
-<input id="adminKey" type="password" placeholder="Admin API Key">
-<button onclick="saveKey()">Unlock Dashboard</button>
-<button class="secondary" onclick="clearKey()">Lock</button>
-<div id="adminMessage"></div>
-</section>
+<!-- SCHEDULED POSTS PAGE -->
+<section class="page" id="page-scheduled">
+<div class="page-heading">
+<h1>Scheduled Posts</h1>
+<p>Schedule Instagram photos and reels.</p>
+</div>
 
-<section class="card">
-<h2>📅 Scheduled Instagram Posts</h2>
+<div class="card">
+<h2>➕ Create Scheduled Post</h2>
 
 <label>Post Type</label>
 <select id="mediaType">
@@ -111,16 +203,78 @@ footer{text-align:center;color:#7386a3;padding:20px}
 <label>Publish Date & Time</label>
 <input id="scheduledAt" type="datetime-local">
 
-<button onclick="window.schedulePost()">Schedule Post</button>
-<div id="scheduleMessage"></div>
+<button class="primary" onclick="schedulePost()">Schedule Post</button>
+<div id="scheduleMessage" class="message"></div>
+</div>
 
-<hr style="border-color:#293b56;margin:20px 0">
+<div class="card">
+<div class="row">
+<h2>Scheduled Post History</h2>
+<button class="secondary" onclick="loadScheduledPosts()">↻ Refresh</button>
+</div>
+<div id="scheduledPosts">Unlock admin access to view scheduled posts.</div>
+</div>
+</section>
 
-<button class="secondary" onclick="window.loadScheduledPosts()">Refresh Scheduled Posts</button>
-<div id="scheduledPosts">No posts loaded.</div>
+<!-- ANALYTICS PAGE -->
+<section class="page" id="page-analytics">
+<div class="page-heading">
+<h1>Analytics</h1>
+<p>Available Instagram automation statistics.</p>
+</div>
+
+<div class="card">
+<div class="row">
+<h2>Comment Analytics</h2>
+<button class="secondary" onclick="loadStats()">↻ Refresh</button>
+</div>
+<div class="grid">
+<div class="stat"><small>Total Comments</small><strong id="aTotal">0</strong></div>
+<div class="stat"><small>Replies Sent</small><strong id="aReplied">0</strong></div>
+<div class="stat"><small>Failed Replies</small><strong id="aFailed">0</strong></div>
+<div class="stat"><small>Pending Replies</small><strong id="aPending">0</strong></div>
+<div class="stat"><small>Ignored Comments</small><strong id="aIgnored">0</strong></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Instagram Post Insights</h2>
+<div class="info">
+Post reach, impressions, likes, saves and shares are not yet connected to this dashboard. These require the appropriate Instagram Graph API permissions and a backend insights endpoint. We will add them after verifying the API access.
+</div>
+</div>
+</section>
+
+<!-- SETTINGS PAGE -->
+<section class="page" id="page-settings">
+<div class="page-heading">
+<h1>Settings</h1>
+<p>Admin access and dashboard configuration.</p>
+</div>
+
+<div class="card">
+<h2>🔐 Admin Access</h2>
+<p class="muted">Enter your existing ADMIN_API_KEY from Render environment variables. Never share it with anyone.</p>
+<input id="adminKey" type="password" placeholder="Admin API Key">
+<div class="row">
+<button class="primary" onclick="saveKey()">Unlock Dashboard</button>
+<button class="secondary" onclick="clearKey()">Lock Dashboard</button>
+</div>
+<div id="adminMessage" class="message"></div>
+</div>
+
+<div class="card">
+<h2>Application Information</h2>
+<p>Application: AYUSH AUTO</p>
+<p>Instagram Account: @ayush_ff_esports</p>
+<p>Backend: Render</p>
+<p>Database: PostgreSQL</p>
+</div>
 </section>
 
 </main>
+</div>
+
 <footer>AYUSH FF ESPORTS · AYUSH AUTO</footer>
 
 <script>
@@ -128,7 +282,10 @@ const API="https://ayush-ff-backend.onrender.com";
 let adminKey=sessionStorage.getItem("ayush_admin_key")||"";
 
 function headers(){
-return {"Content-Type":"application/json","X-Admin-Key":adminKey};
+return {
+"Content-Type":"application/json",
+"X-Admin-Key":adminKey
+};
 }
 
 async function api(path,options={}){
@@ -138,16 +295,42 @@ if(!response.ok)throw new Error(data.message||data.error||"Request failed");
 return data;
 }
 
+// PAGE NAVIGATION
+window.showPage=function(name){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+
+const page=document.getElementById("page-"+name);
+if(page)page.classList.add("active");
+
+const button=document.querySelector('[data-page="'+name+'"]');
+if(button)button.classList.add("active");
+
+document.getElementById("sidebar").classList.remove("open");
+
+if(name==="comments")window.loadComments();
+if(name==="scheduled")window.loadScheduledPosts();
+if(name==="analytics")window.loadStats();
+};
+
+window.toggleMenu=function(){
+document.getElementById("sidebar").classList.toggle("open");
+};
+
+// ADMIN ACCESS
 window.saveKey=function(){
 const value=document.getElementById("adminKey").value.trim();
+
 if(!value){
 document.getElementById("adminMessage").textContent="Enter admin key.";
 return;
 }
+
 adminKey=value;
 sessionStorage.setItem("ayush_admin_key",value);
 document.getElementById("adminKey").value="";
-document.getElementById("adminMessage").textContent="Dashboard unlocked.";
+document.getElementById("adminMessage").textContent="Admin key saved for this browser session.";
+
 window.refreshAll();
 window.loadScheduledPosts();
 };
@@ -155,78 +338,119 @@ window.loadScheduledPosts();
 window.clearKey=function(){
 sessionStorage.removeItem("ayush_admin_key");
 adminKey="";
+
 document.getElementById("adminMessage").textContent="Dashboard locked.";
-document.getElementById("comments").textContent="Unlock dashboard to view comments.";
-document.getElementById("scheduledPosts").textContent="Unlock dashboard to view scheduled posts.";
+document.getElementById("comments").textContent="Unlock admin access to view comments.";
+document.getElementById("scheduledPosts").textContent="Unlock admin access to view scheduled posts.";
+
+["total","replied","failed","pending","ignored","aTotal","aReplied","aFailed","aPending","aIgnored"].forEach(id=>{
+document.getElementById(id).textContent="0";
+});
 };
 
+// INSTAGRAM STATUS
 async function loadStatus(){
 try{
 const data=await api("/api/status");
+
 document.getElementById("connection").innerHTML=data.connected
 ?'<span class="good">● Instagram Connected</span>'
 :'<span class="bad">● Instagram Disconnected</span>';
-document.getElementById("uptime").textContent="Server uptime: "+Math.floor(data.uptimeSeconds/60)+" minutes";
-document.getElementById("autoReply").checked=Boolean(data.automation.autoCommentReply);
-document.getElementById("replyText").value=data.automation.autoReplyText||"";
+
+document.getElementById("uptime").textContent=
+"Server uptime: "+Math.floor(data.uptimeSeconds/60)+" minutes";
+
+document.getElementById("autoReply").checked=
+Boolean(data.automation.autoCommentReply);
+
+document.getElementById("replyText").value=
+data.automation.autoReplyText||"";
+
 }catch(error){
 document.getElementById("connection").textContent="Backend connection failed: "+error.message;
 }
 }
 
-async function loadStats(){
-if(!adminKey)return;
+// COMMENT STATISTICS
+window.loadStats=async function(){
+if(!adminKey){
+document.getElementById("adminMessage").textContent="Unlock dashboard first.";
+return;
+}
+
 try{
 const data=await api("/api/comments/stats",{headers:headers()});
 const s=data.statistics;
-document.getElementById("total").textContent=s.total;
-document.getElementById("replied").textContent=s.replied;
-document.getElementById("failed").textContent=s.failed;
-document.getElementById("pending").textContent=s.pending;
-document.getElementById("ignored").textContent=s.ignored;
+
+const values={
+total:s.total,
+replied:s.replied,
+failed:s.failed,
+pending:s.pending,
+ignored:s.ignored
+};
+
+Object.entries(values).forEach(([key,value])=>{
+document.getElementById(key).textContent=value;
+document.getElementById("a"+key.charAt(0).toUpperCase()+key.slice(1)).textContent=value;
+});
+
 }catch(error){
 document.getElementById("adminMessage").textContent=error.message;
 }
-}
+};
 
+// COMMENTS
 window.loadComments=async function(){
 if(!adminKey){
-document.getElementById("comments").textContent="Unlock dashboard first.";
+document.getElementById("comments").textContent="Unlock admin access first.";
 return;
 }
+
 const area=document.getElementById("comments");
 area.textContent="Loading comments...";
+
 try{
 const data=await api("/api/comments?limit=50",{headers:headers()});
 area.innerHTML="";
+
 if(!data.comments.length){
 area.textContent="No comments found yet.";
 return;
 }
+
 data.comments.forEach(c=>{
 const item=document.createElement("div");
 item.className="comment";
+
 const name=document.createElement("strong");
 name.textContent="@"+(c.username||"Unknown");
+
 const commentText=document.createElement("p");
 commentText.textContent=c.comment_text||"(No text)";
+
 const details=document.createElement("small");
 details.textContent="Status: "+c.reply_status+" · "+(c.created_at||"");
+
 item.append(name,commentText,details);
 area.appendChild(item);
 });
+
 }catch(error){
 area.textContent="Error: "+error.message;
 }
 };
 
+// SAVE AUTO REPLY SETTINGS
 window.saveSettings=async function(){
 if(!adminKey){
 alert("Unlock dashboard first.");
 return;
 }
+
 const message=document.getElementById("message");
 message.textContent="Saving...";
+
 try{
 await api("/api/settings",{
 method:"POST",
@@ -236,18 +460,22 @@ autoCommentReply:document.getElementById("autoReply").checked,
 autoReplyText:document.getElementById("replyText").value.trim()
 })
 });
+
 message.textContent="Settings saved successfully!";
 await loadStatus();
+
 }catch(error){
 message.textContent="Error: "+error.message;
 }
 };
 
+// SCHEDULE POST
 window.schedulePost=async function(){
 if(!adminKey){
 alert("Unlock dashboard first.");
 return;
 }
+
 const mediaType=document.getElementById("mediaType").value;
 const mediaUrl=document.getElementById("mediaUrl").value.trim();
 const caption=document.getElementById("postCaption").value;
@@ -257,10 +485,12 @@ if(!mediaUrl||!scheduledAt){
 alert("Media URL aur date/time required hain.");
 return;
 }
+
 if(!mediaUrl.startsWith("https://")){
 alert("Public HTTPS URL required.");
 return;
 }
+
 const date=new Date(scheduledAt);
 if(isNaN(date.getTime())||date<=new Date()){
 alert("Future date and time select karo.");
@@ -269,6 +499,7 @@ return;
 
 const message=document.getElementById("scheduleMessage");
 message.textContent="Scheduling...";
+
 try{
 await api("/api/schedule",{
 method:"POST",
@@ -280,69 +511,89 @@ caption:caption,
 scheduledAt:date.toISOString()
 })
 });
+
 message.textContent="Post scheduled successfully!";
 document.getElementById("mediaUrl").value="";
 document.getElementById("postCaption").value="";
 document.getElementById("scheduledAt").value="";
+
 await window.loadScheduledPosts();
+
 }catch(error){
 message.textContent="Error: "+error.message;
 }
 };
 
+// LOAD SCHEDULED POSTS
 window.loadScheduledPosts=async function(){
 if(!adminKey){
-document.getElementById("scheduledPosts").textContent="Unlock dashboard first.";
+document.getElementById("scheduledPosts").textContent="Unlock admin access first.";
 return;
 }
+
 const area=document.getElementById("scheduledPosts");
 area.textContent="Loading...";
+
 try{
 const data=await api("/api/scheduled-posts",{headers:headers()});
 area.innerHTML="";
+
 if(!data.posts||!data.posts.length){
 area.textContent="No scheduled posts.";
 return;
 }
+
 data.posts.forEach(post=>{
 const item=document.createElement("div");
 item.className="comment";
+
 const title=document.createElement("strong");
 title.textContent=(post.media_type||"POST").toUpperCase()+" · "+post.status;
+
 const details=document.createElement("p");
 details.textContent=new Date(post.scheduled_at).toLocaleString();
+
 item.append(title,details);
+
 if(post.status==="pending"){
 const cancel=document.createElement("button");
-cancel.className="secondary";
+cancel.className="secondary danger";
 cancel.textContent="Cancel";
 cancel.onclick=()=>window.cancelScheduledPost(post.id);
 item.appendChild(cancel);
 }
+
 area.appendChild(item);
 });
+
 }catch(error){
 area.textContent="Error: "+error.message;
 }
 };
 
+// CANCEL SCHEDULED POST
 window.cancelScheduledPost=async function(id){
 if(!confirm("Cancel this scheduled post?"))return;
+
 try{
 await api("/api/scheduled-posts/"+id,{
 method:"DELETE",
 headers:headers()
 });
+
 await window.loadScheduledPosts();
+
 }catch(error){
 alert(error.message);
 }
 };
 
+// REFRESH ALL
 window.refreshAll=async function(){
 await loadStatus();
+
 if(adminKey){
-await loadStats();
+await window.loadStats();
 await window.loadComments();
 }
 };
@@ -350,5 +601,6 @@ await window.loadComments();
 window.refreshAll();
 setInterval(window.refreshAll,30000);
 </script>
+
 </body>
 </html>
