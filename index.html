@@ -23,7 +23,6 @@ textarea{min-height:90px;resize:vertical}
 input[type=checkbox]{width:22px;height:22px}
 button{border:0;border-radius:8px;padding:11px 16px;background:#1677ff;color:white;font-weight:bold;cursor:pointer}
 button.secondary{background:#344967}
-button:disabled{opacity:.5}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .status{color:#ffc857}
 .good{color:#38df9a}
@@ -68,10 +67,7 @@ footer{text-align:center;color:#7386a3;padding:20px}
 <section class="card">
 <h2>⚙️ Auto Reply Settings</h2>
 <div class="row">
-<div>
 <strong>Automatic Comment Reply</strong>
-<p style="color:#9eb1cc;margin:6px 0">Enable or disable automatic replies.</p>
-</div>
 <input id="autoReply" type="checkbox">
 </div>
 <label>Reply Message</label>
@@ -90,7 +86,7 @@ footer{text-align:center;color:#7386a3;padding:20px}
 
 <section class="card">
 <h2>🔐 Admin Access</h2>
-<p style="color:#9eb1cc">Enter your existing ADMIN_API_KEY from Render environment variables. Never share it with anyone.</p>
+<p style="color:#9eb1cc">Enter your existing ADMIN_API_KEY from Render. Never share it.</p>
 <input id="adminKey" type="password" placeholder="Admin API Key">
 <button onclick="saveKey()">Unlock Dashboard</button>
 <button class="secondary" onclick="clearKey()">Lock</button>
@@ -115,173 +111,122 @@ footer{text-align:center;color:#7386a3;padding:20px}
 <label>Publish Date & Time</label>
 <input id="scheduledAt" type="datetime-local">
 
-<button onclick="schedulePost()">Schedule Post</button>
+<button onclick="window.schedulePost()">Schedule Post</button>
 <div id="scheduleMessage"></div>
 
 <hr style="border-color:#293b56;margin:20px 0">
 
-<button class="secondary" onclick="loadScheduledPosts()">Refresh Scheduled Posts</button>
+<button class="secondary" onclick="window.loadScheduledPosts()">Refresh Scheduled Posts</button>
 <div id="scheduledPosts">No posts loaded.</div>
 </section>
 
 </main>
-
 <footer>AYUSH FF ESPORTS · AYUSH AUTO</footer>
 
 <script>
 const API="https://ayush-ff-backend.onrender.com";
-
 let adminKey=sessionStorage.getItem("ayush_admin_key")||"";
 
 function headers(){
-return {
-"Content-Type":"application/json",
-"X-Admin-Key":adminKey
-};
+return {"Content-Type":"application/json","X-Admin-Key":adminKey};
 }
 
 async function api(path,options={}){
 const response=await fetch(API+path,options);
 const data=await response.json();
-
-if(!response.ok){
-throw new Error(data.message||data.error||"Request failed");
-}
+if(!response.ok)throw new Error(data.message||data.error||"Request failed");
 return data;
 }
 
-// ADMIN ACCESS
-
-function saveKey(){
+window.saveKey=function(){
 const value=document.getElementById("adminKey").value.trim();
-
 if(!value){
 document.getElementById("adminMessage").textContent="Enter admin key.";
 return;
 }
-
 adminKey=value;
 sessionStorage.setItem("ayush_admin_key",value);
 document.getElementById("adminKey").value="";
-document.getElementById("adminMessage").textContent="Key saved for this browser session.";
+document.getElementById("adminMessage").textContent="Dashboard unlocked.";
+window.refreshAll();
+window.loadScheduledPosts();
+};
 
-refreshAll();
-loadScheduledPosts();
-}
-
-function clearKey(){
+window.clearKey=function(){
 sessionStorage.removeItem("ayush_admin_key");
 adminKey="";
-
 document.getElementById("adminMessage").textContent="Dashboard locked.";
 document.getElementById("comments").textContent="Unlock dashboard to view comments.";
 document.getElementById("scheduledPosts").textContent="Unlock dashboard to view scheduled posts.";
-
-["total","replied","failed","pending","ignored"].forEach(id=>{
-document.getElementById(id).textContent="0";
-});
-}
-
-// INSTAGRAM STATUS
+};
 
 async function loadStatus(){
 try{
 const data=await api("/api/status");
-
-document.getElementById("connection").innerHTML=
-data.connected
+document.getElementById("connection").innerHTML=data.connected
 ?'<span class="good">● Instagram Connected</span>'
 :'<span class="bad">● Instagram Disconnected</span>';
-
-document.getElementById("uptime").textContent=
-"Server uptime: "+Math.floor(data.uptimeSeconds/60)+" minutes";
-
-document.getElementById("autoReply").checked=
-Boolean(data.automation.autoCommentReply);
-
-document.getElementById("replyText").value=
-data.automation.autoReplyText||"";
-
+document.getElementById("uptime").textContent="Server uptime: "+Math.floor(data.uptimeSeconds/60)+" minutes";
+document.getElementById("autoReply").checked=Boolean(data.automation.autoCommentReply);
+document.getElementById("replyText").value=data.automation.autoReplyText||"";
 }catch(error){
-document.getElementById("connection").textContent=
-"Backend connection failed: "+error.message;
+document.getElementById("connection").textContent="Backend connection failed: "+error.message;
 }
 }
-
-// COMMENT STATISTICS
 
 async function loadStats(){
 if(!adminKey)return;
-
 try{
 const data=await api("/api/comments/stats",{headers:headers()});
 const s=data.statistics;
-
 document.getElementById("total").textContent=s.total;
 document.getElementById("replied").textContent=s.replied;
 document.getElementById("failed").textContent=s.failed;
 document.getElementById("pending").textContent=s.pending;
 document.getElementById("ignored").textContent=s.ignored;
-
 }catch(error){
 document.getElementById("adminMessage").textContent=error.message;
 }
 }
 
-// COMMENTS
-
-async function loadComments(){
+window.loadComments=async function(){
 if(!adminKey){
 document.getElementById("comments").textContent="Unlock dashboard first.";
 return;
 }
-
 const area=document.getElementById("comments");
 area.textContent="Loading comments...";
-
 try{
 const data=await api("/api/comments?limit=50",{headers:headers()});
-
 area.innerHTML="";
-
 if(!data.comments.length){
 area.textContent="No comments found yet.";
 return;
 }
-
 data.comments.forEach(c=>{
 const item=document.createElement("div");
 item.className="comment";
-
 const name=document.createElement("strong");
 name.textContent="@"+(c.username||"Unknown");
-
 const commentText=document.createElement("p");
 commentText.textContent=c.comment_text||"(No text)";
-
 const details=document.createElement("small");
 details.textContent="Status: "+c.reply_status+" · "+(c.created_at||"");
-
 item.append(name,commentText,details);
 area.appendChild(item);
 });
-
 }catch(error){
 area.textContent="Error: "+error.message;
 }
-}
+};
 
-// SAVE AUTO REPLY SETTINGS
-
-async function saveSettings(){
+window.saveSettings=async function(){
 if(!adminKey){
 alert("Unlock dashboard first.");
 return;
 }
-
 const message=document.getElementById("message");
 message.textContent="Saving...";
-
 try{
 await api("/api/settings",{
 method:"POST",
@@ -291,23 +236,18 @@ autoCommentReply:document.getElementById("autoReply").checked,
 autoReplyText:document.getElementById("replyText").value.trim()
 })
 });
-
 message.textContent="Settings saved successfully!";
 await loadStatus();
-
 }catch(error){
 message.textContent="Error: "+error.message;
 }
-}
+};
 
-// SCHEDULE POST
-
-async function schedulePost(){
+window.schedulePost=async function(){
 if(!adminKey){
 alert("Unlock dashboard first.");
 return;
 }
-
 const mediaType=document.getElementById("mediaType").value;
 const mediaUrl=document.getElementById("mediaUrl").value.trim();
 const caption=document.getElementById("postCaption").value;
@@ -317,14 +257,11 @@ if(!mediaUrl||!scheduledAt){
 alert("Media URL aur date/time required hain.");
 return;
 }
-
 if(!mediaUrl.startsWith("https://")){
-alert("Public HTTPS URL use karo.");
+alert("Public HTTPS URL required.");
 return;
 }
-
 const date=new Date(scheduledAt);
-
 if(isNaN(date.getTime())||date<=new Date()){
 alert("Future date and time select karo.");
 return;
@@ -332,112 +269,86 @@ return;
 
 const message=document.getElementById("scheduleMessage");
 message.textContent="Scheduling...";
-
 try{
 await api("/api/schedule",{
 method:"POST",
 headers:headers(),
 body:JSON.stringify({
-mediaType,
-mediaUrl,
-caption,
+mediaType:mediaType,
+mediaUrl:mediaUrl,
+caption:caption,
 scheduledAt:date.toISOString()
 })
 });
-
 message.textContent="Post scheduled successfully!";
 document.getElementById("mediaUrl").value="";
 document.getElementById("postCaption").value="";
 document.getElementById("scheduledAt").value="";
-
-await loadScheduledPosts();
-
+await window.loadScheduledPosts();
 }catch(error){
 message.textContent="Error: "+error.message;
 }
-}
+};
 
-// LOAD SCHEDULED POSTS
-
-async function loadScheduledPosts(){
+window.loadScheduledPosts=async function(){
 if(!adminKey){
 document.getElementById("scheduledPosts").textContent="Unlock dashboard first.";
 return;
 }
-
 const area=document.getElementById("scheduledPosts");
 area.textContent="Loading...";
-
 try{
 const data=await api("/api/scheduled-posts",{headers:headers()});
-
 area.innerHTML="";
-
 if(!data.posts||!data.posts.length){
 area.textContent="No scheduled posts.";
 return;
 }
-
 data.posts.forEach(post=>{
 const item=document.createElement("div");
 item.className="comment";
-
 const title=document.createElement("strong");
 title.textContent=(post.media_type||"POST").toUpperCase()+" · "+post.status;
-
 const details=document.createElement("p");
 details.textContent=new Date(post.scheduled_at).toLocaleString();
-
 item.append(title,details);
-
 if(post.status==="pending"){
 const cancel=document.createElement("button");
 cancel.className="secondary";
 cancel.textContent="Cancel";
-cancel.onclick=()=>cancelScheduledPost(post.id);
+cancel.onclick=()=>window.cancelScheduledPost(post.id);
 item.appendChild(cancel);
 }
-
 area.appendChild(item);
 });
-
 }catch(error){
 area.textContent="Error: "+error.message;
 }
-}
+};
 
-// CANCEL SCHEDULED POST
-
-async function cancelScheduledPost(id){
+window.cancelScheduledPost=async function(id){
 if(!confirm("Cancel this scheduled post?"))return;
-
 try{
 await api("/api/scheduled-posts/"+id,{
 method:"DELETE",
 headers:headers()
 });
-
-await loadScheduledPosts();
-
+await window.loadScheduledPosts();
 }catch(error){
 alert(error.message);
 }
-}
+};
 
-// REFRESH DASHBOARD
-
-async function refreshAll(){
+window.refreshAll=async function(){
 await loadStatus();
-
 if(adminKey){
 await loadStats();
-await loadComments();
+await window.loadComments();
 }
-}
+};
 
-refreshAll();
-setInterval(refreshAll,30000);
-
+window.refreshAll();
+setInterval(window.refreshAll,30000);
 </script>
 </body>
 </html>
