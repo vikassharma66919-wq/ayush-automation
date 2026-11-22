@@ -1,132 +1,249 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AYUSH AUTO · Instagram Automation</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AYUSH AUTO Dashboard</title>
 <style>
-:root{--bg:#080d1b;--panel:#111a2e;--panel2:#17233d;--line:#263653;--blue:#2878ff;--text:#eef4ff;--muted:#9aabc8;--green:#32c48d;--amber:#f1c76b;--red:#ff7777}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#080d1b,#0c1730);color:var(--text);font:15px Arial,sans-serif}
-.wrap{max-width:1100px;margin:auto;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px}
-.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#2878ff,#744dff);display:grid;place-items:center;font-weight:800;font-size:18px}
-h1{font-size:22px;margin:0}small,.muted{color:var(--muted)}.status{border:1px solid #245a4b;color:#75e1b5;background:#102c28;border-radius:30px;padding:8px 12px;font-size:12px}
-.hero{padding:25px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(120deg,#14284b,#171b3c);margin-bottom:18px}
-.hero h2{font-size:26px;margin:0 0 8px}.hero p{color:#c0cce2;line-height:1.5;margin:0}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
-.card h3{margin:0 0 7px;font-size:16px}.card p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}
-.icon{font-size:23px;margin-bottom:12px}.section{margin:25px 0 12px;font-size:18px}
-.rule{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}.rule:last-child{border:0}
-.rule b{display:block;margin-bottom:5px}.rule small{font-size:12px}
-.switch{appearance:none;width:46px;height:26px;border-radius:20px;background:#40506a;position:relative;cursor:pointer;flex:none;transition:.2s}
-.switch:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s}
-.switch:checked{background:var(--green)}.switch:checked:before{left:23px}
-button{border:0;border-radius:10px;background:var(--blue);color:white;padding:11px 15px;font-weight:700;cursor:pointer}
-button.secondary{background:#243451;border:1px solid #3a4e70}
-input[type=url]{width:100%;max-width:520px;background:#0b1426;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--text);margin:8px 0}
-.note{margin-top:18px;border:1px solid #5c4c26;background:#2a2416;color:#f5d98c;padding:14px;border-radius:12px;font-size:13px;line-height:1.5}
-.pill{font-size:12px;padding:5px 9px;border-radius:20px;background:#243451;color:#cbd8ef}.good{color:#75e1b5}.warn{color:var(--amber)}.bad{color:var(--red)}
-.activity{padding:10px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:13px}.activity:last-child{border:0}
-footer{color:var(--muted);font-size:12px;text-align:center;padding:28px 0}
-@media(max-width:760px){.grid{grid-template-columns:1fr 1fr}.wrap{padding:15px}.hero h2{font-size:22px}}
-@media(max-width:480px){.grid{grid-template-columns:1fr}.top{align-items:flex-start}.status{font-size:11px}}
+*{box-sizing:border-box}
+body{margin:0;background:#080e1c;color:#fff;font-family:Arial,sans-serif}
+header{padding:22px;background:#101b31;border-bottom:1px solid #263958}
+header h1{margin:0;color:#38a0ff;font-size:23px}
+header p{color:#9eb1cc;margin:7px 0 0}
+main{max-width:1100px;margin:auto;padding:20px}
+.card{background:#111d32;border:1px solid #263958;border-radius:14px;padding:18px;margin-bottom:17px}
+h2{font-size:18px;margin:0 0 15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+.stat{background:#172743;padding:17px;border-radius:12px}
+.stat small{color:#9eb1cc}
+.stat strong{display:block;font-size:27px;margin-top:9px}
+input,textarea{width:100%;background:#081426;color:white;border:1px solid #344967;border-radius:8px;padding:12px;margin:7px 0 12px}
+textarea{min-height:90px;resize:vertical}
+button{border:0;border-radius:8px;padding:11px 16px;background:#1677ff;color:white;font-weight:bold;cursor:pointer}
+button.secondary{background:#344967}
+button:disabled{opacity:.5}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.status{color:#ffc857}
+.good{color:#38df9a}
+.bad{color:#ff7070}
+.comment{border-top:1px solid #293b56;padding:13px 0;overflow-wrap:anywhere}
+.comment small{color:#9eb1cc}
+.pill{display:inline-block;padding:5px 9px;border-radius:20px;background:#263958;font-size:12px}
+footer{text-align:center;color:#7386a3;padding:20px}
+#message{margin:12px 0;color:#38df9a}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand"><div class="logo">AA</div><div><h1>AYUSH AUTO</h1><small>Instagram Automation Dashboard</small></div></div>
-    <span class="status" id="connectionPill">● Checking backend…</span>
-  </header>
 
-  <section class="hero">
-    <h2>Welcome to AYUSH AUTO</h2>
-    <p>Monitor the backend and Instagram webhook events from one dashboard. Instagram actions remain disabled until the official Meta authorization and required API features are implemented.</p>
-  </section>
+<header>
+  <h1>⚡ AYUSH AUTO</h1>
+  <p>AYUSH FF ESPORTS · Instagram Automation Dashboard</p>
+</header>
 
-  <h2 class="section">Live connection status</h2>
-  <section class="grid">
-    <div class="card"><div class="icon">🖥️</div><h3>Backend</h3><p id="backendStatus">Checking…</p></div>
-    <div class="card"><div class="icon">🗨️</div><h3>Comment Webhook</h3><p id="commentStatus">Waiting for backend…</p></div>
-    <div class="card"><div class="icon">💬</div><h3>DM Webhook</h3><p id="dmStatus">Waiting for backend…</p></div>
-    <div class="card"><div class="icon">📥</div><h3>Comment Events</h3><p id="commentCount">—</p></div>
-    <div class="card"><div class="icon">✉️</div><h3>Message Events</h3><p id="messageCount">—</p></div>
-    <div class="card"><div class="icon">🕒</div><h3>Last Event</h3><p id="lastEvent">No event received yet</p></div>
-  </section>
+<main>
 
-  <h2 class="section">Instagram account</h2>
-  <section class="card">
-    <div class="rule"><div><b>Account authorization</b><small id="accountStatus">Not connected through this dashboard.</small></div><span class="pill warn">Not connected</span></div>
-    <p class="muted" style="font-size:13px;line-height:1.5">This dashboard does not ask for or store your Instagram password. Official Meta OAuth connection and profile lookup still need to be implemented.</p>
-  </section>
+<section class="card">
+  <div class="row">
+    <div>
+      <h2>Instagram Connection</h2>
+      <div id="connection" class="status">Checking connection...</div>
+    </div>
+    <button class="secondary" onclick="refreshAll()">↻ Refresh</button>
+  </div>
+  <p id="uptime" style="color:#9eb1cc"></p>
+</section>
 
-  <h2 class="section">Automation controls</h2>
-  <section class="card">
-    <div class="rule"><div><b>DM reply rules</b><small>Display preference only. Does not send messages.</small></div><input class="switch" type="checkbox" data-key="dm"></div>
-    <div class="rule"><div><b>Comment keyword rules</b><small>Display preference only. Does not reply to comments.</small></div><input class="switch" type="checkbox" data-key="comments"></div>
-    <div class="rule"><div><b>Post scheduler</b><small>Display preference only. Does not publish posts.</small></div><input class="switch" type="checkbox" data-key="schedule"></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px"><button class="secondary" onclick="refreshStatus()">Refresh status</button><button class="secondary" onclick="resetSwitches()">Reset preferences</button></div>
-  </section>
+<section class="card">
+  <h2>📊 Comment Statistics</h2>
+  <div class="grid">
+    <div class="stat"><small>Total Comments</small><strong id="total">0</strong></div>
+    <div class="stat"><small>Replies Sent</small><strong id="replied">0</strong></div>
+    <div class="stat"><small>Failed</small><strong id="failed">0</strong></div>
+    <div class="stat"><small>Pending</small><strong id="pending">0</strong></div>
+    <div class="stat"><small>Ignored</small><strong id="ignored">0</strong></div>
+  </div>
+</section>
 
-  <h2 class="section">Recent webhook activity</h2>
-  <section class="card" id="activityList"><p class="muted">Loading activity…</p></section>
+<section class="card">
+  <h2>⚙️ Auto Reply Settings</h2>
+  <div class="row">
+    <div>
+      <strong>Automatic Comment Reply</strong>
+      <p style="color:#9eb1cc;margin:6px 0">Enable or disable automatic replies.</p>
+    </div>
+    <label>
+      <input id="autoReply" type="checkbox" style="width:22px;height:22px">
+    </label>
+  </div>
+  <label>Reply Message</label>
+  <textarea id="replyText" maxlength="500" placeholder="Enter your reply message"></textarea>
+  <button onclick="saveSettings()">Save Settings</button>
+  <div id="message"></div>
+</section>
 
-  <div class="note"><b>Important:</b> This dashboard currently monitors backend health and received webhook event counts only. It does not send Instagram DMs, reply to comments, publish posts, or connect an Instagram profile. Do not upload this prototype as proof of features that are not yet working. Never enter your Instagram password or access token here.</div>
-  <footer>AYUSH AUTO · Built for AYUSH FF ESPORTS</footer>
-</div>
+<section class="card">
+  <div class="row">
+    <h2>💬 Recent Comments</h2>
+    <button class="secondary" onclick="loadComments()">Load Comments</button>
+  </div>
+  <div id="comments">Enter your admin key to load comments.</div>
+</section>
+
+<section class="card">
+  <h2>🔐 Admin Access</h2>
+  <p style="color:#9eb1cc">Enter your existing ADMIN_API_KEY from Render environment variables. Never share it with anyone.</p>
+  <input id="adminKey" type="password" placeholder="Admin API Key">
+  <button onclick="saveKey()">Unlock Dashboard</button>
+  <button class="secondary" onclick="clearKey()">Lock</button>
+  <div id="adminMessage"></div>
+</section>
+
+</main>
+<footer>AYUSH FF ESPORTS · AYUSH AUTO</footer>
+
 <script>
-const API_BASE = "https://ayush-ff-backend.onrender.com";
+const API = "https://ayush-ff-backend.onrender.com";
 
-function setText(id, text){ const el=document.getElementById(id); if(el) el.textContent=text; }
-function fmtTime(value){
-  if(!value) return "No event received yet";
-  const d=new Date(value);
-  return isNaN(d.getTime()) ? "Unknown" : d.toLocaleString();
+let adminKey = sessionStorage.getItem("ayush_admin_key") || "";
+
+function headers(){
+  return {
+    "Content-Type":"application/json",
+    "X-Admin-Key":adminKey
+  };
 }
-async function refreshStatus(){
-  setText("connectionPill","● Checking backend…");
+
+async function api(path, options={}){
+  const response = await fetch(API + path, options);
+  const data = await response.json();
+  if(!response.ok) throw new Error(data.message || data.error || "Request failed");
+  return data;
+}
+
+function saveKey(){
+  const value = document.getElementById("adminKey").value.trim();
+  if(!value){
+    document.getElementById("adminMessage").textContent="Enter admin key.";
+    return;
+  }
+  adminKey=value;
+  sessionStorage.setItem("ayush_admin_key",value);
+  document.getElementById("adminKey").value="";
+  document.getElementById("adminMessage").textContent="Key saved for this browser session.";
+  refreshAll();
+}
+
+function clearKey(){
+  sessionStorage.removeItem("ayush_admin_key");
+  adminKey="";
+  document.getElementById("adminMessage").textContent="Dashboard locked.";
+  document.getElementById("comments").textContent="Unlock dashboard to view comments.";
+}
+
+async function loadStatus(){
   try{
-    const response=await fetch(API_BASE+"/api/status",{cache:"no-store"});
-    if(!response.ok) throw new Error("HTTP "+response.status);
-    const data=await response.json();
-    setText("connectionPill","● Backend connected");
-    setText("backendStatus","Online · "+(data.uptimeSeconds ?? "—")+" sec uptime");
-    setText("commentStatus",data.webhooks?.comments ? "Events received" : "Waiting for comment events");
-    setText("dmStatus",data.webhooks?.messages ? "Events received" : "Waiting for message events");
-    setText("commentCount",String(data.counts?.comments ?? 0)+" received");
-    setText("messageCount",String(data.counts?.messages ?? 0)+" received");
-    setText("lastEvent",fmtTime(data.lastEventAt));
-    const list=document.getElementById("activityList");
-    const events=Array.isArray(data.recentEvents)?data.recentEvents:[];
-    if(!events.length){list.innerHTML='<p class="muted">No webhook events recorded yet.</p>';return;}
-    list.replaceChildren();
-    events.slice().reverse().forEach(event=>{
-      const row=document.createElement("div"); row.className="activity";
-      const label=document.createElement("span"); label.textContent=(event.type||"Webhook")+" event";
-      const time=document.createElement("span"); time.className="muted"; time.textContent=fmtTime(event.at);
-      row.append(label,time); list.append(row);
-    });
+    const data=await api("/api/status");
+    document.getElementById("connection").innerHTML=
+      data.connected ? '<span class="good">● Instagram Connected</span>' :
+      '<span class="bad">● Instagram Disconnected</span>';
+
+    document.getElementById("uptime").textContent=
+      "Server uptime: "+Math.floor(data.uptimeSeconds/60)+" minutes";
+
+    document.getElementById("autoReply").checked=
+      Boolean(data.automation.autoCommentReply);
+
+    document.getElementById("replyText").value=
+      data.automation.autoReplyText || "";
   }catch(error){
-    setText("connectionPill","● Backend unavailable");
-    setText("backendStatus","Could not reach backend. Check Render service and CORS settings.");
-    setText("commentStatus","Status unavailable");
-    setText("dmStatus","Status unavailable");
-    setText("commentCount","—"); setText("messageCount","—");
-    setText("lastEvent","—");
-    document.getElementById("activityList").innerHTML='<p class="muted">Could not load activity. Backend status endpoint may not be deployed yet.</p>';
+    document.getElementById("connection").textContent="Backend connection failed: "+error.message;
   }
 }
-document.querySelectorAll(".switch").forEach(el=>{
-  const key="ayush_auto_"+el.dataset.key;
-  el.checked=localStorage.getItem(key)==="true";
-  el.addEventListener("change",()=>localStorage.setItem(key,String(el.checked)));
-});
-function resetSwitches(){
-  document.querySelectorAll(".switch").forEach(el=>{
-    el.checked=false; localStorage.removeItem("ayush_auto_"+el.dataset.key);
-  });
+
+async function loadStats(){
+  if(!adminKey)return;
+  try{
+    const data=await api("/api/comments/stats",{
+      headers:headers()
+    });
+    const s=data.statistics;
+    document.getElementById("total").textContent=s.total;
+    document.getElementById("replied").textContent=s.replied;
+    document.getElementById("failed").textContent=s.failed;
+    document.getElementById("pending").textContent=s.pending;
+    document.getElementById("ignored").textContent=s.ignored;
+  }catch(error){
+    document.getElementById("adminMessage").textContent=error.message;
+  }
 }
-refreshStatus();
-setInterval(refreshStatus,30000);
+
+async function loadComments(){
+  if(!adminKey){
+    document.getElementById("comments").textContent="Unlock dashboard first.";
+    return;
+  }
+  const area=document.getElementById("comments");
+  area.textContent="Loading comments...";
+  try{
+    const data=await api("/api/comments?limit=50",{
+      headers:headers()
+    });
+    area.innerHTML="";
+    if(!data.comments.length){
+      area.textContent="No comments found yet.";
+      return;
+    }
+    data.comments.forEach(c=>{
+      const item=document.createElement("div");
+      item.className="comment";
+      const name=document.createElement("strong");
+      name.textContent="@"+(c.username || "Unknown");
+      const text=document.createElement("p");
+      text.textContent=c.comment_text || "(No text)";
+      const details=document.createElement("small");
+      details.textContent="Status: "+c.reply_status+" · "+(c.created_at || "");
+      item.append(name,text,details);
+      area.appendChild(item);
+    });
+  }catch(error){
+    area.textContent="Error: "+error.message;
+  }
+}
+
+async function saveSettings(){
+  if(!adminKey){
+    alert("Unlock dashboard first.");
+    return;
+  }
+  const message=document.getElementById("message");
+  message.textContent="Saving...";
+  try{
+    const data=await api("/api/settings",{
+      method:"POST",
+      headers:headers(),
+      body:JSON.stringify({
+        autoCommentReply:document.getElementById("autoReply").checked,
+        autoReplyText:document.getElementById("replyText").value.trim()
+      })
+    });
+    message.textContent="Settings saved successfully!";
+    await loadStatus();
+  }catch(error){
+    message.textContent="Error: "+error.message;
+  }
+}
+
+async function refreshAll(){
+  await loadStatus();
+  if(adminKey){
+    await loadStats();
+    await loadComments();
+  }
+}
+
+refreshAll();
+setInterval(refreshAll,30000);
 </script>
 </body>
 </html>
