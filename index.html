@@ -162,6 +162,112 @@ function saveKey(){
   sessionStorage.setItem("ayush_admin_key",value);
   document.getElementById("adminKey").value="";
   document.getElementById("adminMessage").textContent="Key saved for this browser session.";
+  async function schedulePost(){
+  if(!adminKey){
+    alert("Unlock dashboard first.");
+    return;
+  }
+
+  const mediaType=document.getElementById("mediaType").value;
+  const mediaUrl=document.getElementById("mediaUrl").value.trim();
+  const caption=document.getElementById("postCaption").value;
+  const scheduledAt=document.getElementById("scheduledAt").value;
+
+  if(!mediaUrl || !scheduledAt){
+    alert("Media URL aur date/time required hain.");
+    return;
+  }
+
+  const date=new Date(scheduledAt);
+
+  if(isNaN(date.getTime()) || date<=new Date()){
+    alert("Future date and time select karo.");
+    return;
+  }
+
+  const message=document.getElementById("scheduleMessage");
+  message.textContent="Scheduling...";
+
+  try{
+    await api("/api/schedule",{
+      method:"POST",
+      headers:headers(),
+      body:JSON.stringify({
+        mediaType,
+        mediaUrl,
+        caption,
+        scheduledAt:date.toISOString()
+      })
+    });
+
+    message.textContent="Post scheduled successfully!";
+    document.getElementById("mediaUrl").value="";
+    document.getElementById("postCaption").value="";
+    await loadScheduledPosts();
+  }catch(error){
+    message.textContent="Error: "+error.message;
+  }
+}
+
+async function loadScheduledPosts(){
+  if(!adminKey)return;
+
+  const area=document.getElementById("scheduledPosts");
+  area.textContent="Loading...";
+
+  try{
+    const data=await api("/api/scheduled-posts",{
+      headers:headers()
+    });
+
+    area.innerHTML="";
+
+    if(!data.posts.length){
+      area.textContent="No scheduled posts.";
+      return;
+    }
+
+    data.posts.forEach(post=>{
+      const item=document.createElement("div");
+      item.className="comment";
+
+      const title=document.createElement("strong");
+      title.textContent=post.media_type.toUpperCase()+" · "+post.status;
+
+      const details=document.createElement("p");
+      details.textContent=new Date(post.scheduled_at).toLocaleString();
+
+      item.append(title,details);
+
+      if(post.status==="pending"){
+        const cancel=document.createElement("button");
+        cancel.className="secondary";
+        cancel.textContent="Cancel";
+        cancel.onclick=()=>cancelScheduledPost(post.id);
+        item.appendChild(cancel);
+      }
+
+      area.appendChild(item);
+    });
+  }catch(error){
+    area.textContent="Error: "+error.message;
+  }
+}
+
+async function cancelScheduledPost(id){
+  if(!confirm("Cancel this scheduled post?"))return;
+
+  try{
+    await api("/api/scheduled-posts/"+id,{
+      method:"DELETE",
+      headers:headers()
+    });
+
+    await loadScheduledPosts();
+  }catch(error){
+    alert(error.message);
+  }
+}
   refreshAll();
 }
 
