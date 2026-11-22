@@ -98,7 +98,38 @@ footer{text-align:center;color:#7386a3;padding:20px}
   <button class="secondary" onclick="clearKey()">Lock</button>
   <div id="adminMessage"></div>
 </section>
+<section class="card">
+  <h2>📅 Scheduled Instagram Posts</h2>
 
+  <label>Post Type</label>
+  <select id="mediaType">
+    <option value="image">Photo</option>
+    <option value="reel">Reel</option>
+  </select>
+
+  <label>Public HTTPS Media URL</label>
+  <input id="mediaUrl" type="url"
+    placeholder="https://example.com/photo.jpg">
+
+  <label>Caption</label>
+  <textarea id="postCaption"
+    placeholder="Write your Instagram caption..."></textarea>
+
+  <label>Publish Date & Time</label>
+  <input id="scheduledAt" type="datetime-local">
+
+  <button onclick="schedulePost()">Schedule Post</button>
+
+  <div id="scheduleMessage"></div>
+
+  <hr style="border-color:#293b56;margin:20px 0">
+
+  <button class="secondary" onclick="loadScheduledPosts()">
+    Refresh Scheduled Posts
+  </button>
+
+  <div id="scheduledPosts">No posts loaded.</div>
+</section>
 </main>
 <footer>AYUSH FF ESPORTS · AYUSH AUTO</footer>
 
