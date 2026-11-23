@@ -199,8 +199,28 @@ function getMetric(obj,key){
  }
  return null;
 }
-function getSnapshotTotals(item){if(!item)return {};return item.totals&&typeof item.totals==="object"?item.totals:item;}
-function getSnapshotDate(item){return item?.date||item?.snapshot_date||item?.created_at||"";}
+
+function getSnapshotTotals(item){
+ if(!item)return {};
+ return item.totals&&typeof item.totals==="object"?item.totals:item;
+}
+
+function getSnapshotDate(item){
+ if(!item)return "";
+ return item.date||item.snapshot_date||item.created_at||"";
+}
+
+function formatHistoryDate(value){
+ if(!value)return "N/A";
+ const date=new Date(value);
+ if(Number.isNaN(date.getTime()))return String(value);
+ return date.toLocaleDateString("en-IN",{
+  day:"2-digit",
+  month:"short",
+  year:"numeric",
+  timeZone:"UTC"
+ });
+}
 
 window.showPage=function(name){
  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
@@ -288,43 +308,80 @@ function renderHistoryChart(){
  const period=$("historyPeriod")?.value||"7";
  const metric=$("historyMetric")?.value||"reach";
  const source=period==="30"?analyticsHistory.last30Days:analyticsHistory.last7Days;
- const area=$("historyChart"),table=$("historyTable");
- area.innerHTML="";table.innerHTML="";
+ const area=$("historyChart"),table=$("historyTable"),message=$("historyMessage");
+
+ area.innerHTML="";
+ table.innerHTML="";
+
  const rows=Array.isArray(source)?source:[];
- const validRows=rows.map(item=>({date:getSnapshotDate(item),value:getMetric(getSnapshotTotals(item),metric)})).filter(x=>x.date);
+ const validRows=rows.map(item=>({
+  date:getSnapshotDate(item),
+  value:getMetric(getSnapshotTotals(item),metric)
+ })).filter(x=>x.date);
+
  const usable=validRows.filter(x=>x.value!==null);
+
  if(!usable.length){
-  area.innerHTML='<div class="history-empty">Is period ke liye analytics history available nahi hai.<br>Backend snapshots collect hone ke baad chart dikhega.</div>';
+  message.textContent="Is period ke liye analytics history available nahi hai. Backend snapshots collect hone ke baad chart dikhega.";
+  area.innerHTML='<div class="history-empty">No analytics history available for this period.</div>';
   return;
  }
- const values=usable.map(x=>x.value),max=Math.max(...values,1);
- const width=800,height=220,left=45,right=20,top=20,bottom=35;
- const chartWidth=width-left-right,chartHeight=height-top-bottom;
+
+ message.textContent="Showing "+usable.length+" saved analytics snapshot(s).";
+
+ const values=usable.map(x=>x.value);
+ const max=Math.max(...values,1);
+ const width=800,height=220,left=55,right=20,top=20,bottom=35;
+ const chartWidth=width-left-right;
+ const chartHeight=height-top-bottom;
+
  const points=usable.map((item,index)=>{
   const x=usable.length===1?left+chartWidth/2:left+(index/(usable.length-1))*chartWidth;
   const y=top+chartHeight-(item.value/max)*chartHeight;
   return {x,y,item};
  });
+
  const path=points.map((p,i)=>(i===0?"M":"L")+p.x+","+p.y).join(" ");
+
  let svg=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Analytics history chart">
  <line x1="${left}" y1="${top}" x2="${left}" y2="${height-bottom}" stroke="#344967"/>
  <line x1="${left}" y1="${height-bottom}" x2="${width-right}" y2="${height-bottom}" stroke="#344967"/>
  <path d="${path}" fill="none" stroke="#38a0ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
- points.forEach(p=>{svg+=`<circle cx="${p.x}" cy="${p.y}" r="5" fill="#38a0ff"><title>${p.item.date}: ${formatNumber(p.item.value)}</title></circle>`;});
- svg+=`<text x="${left}" y="${height-8}" fill="#9eb1cc" font-size="12">${usable[0].date}</text>
- <text x="${width-right}" y="${height-8}" fill="#9eb1cc" font-size="12" text-anchor="end">${usable[usable.length-1].date}</text>
+
+ points.forEach(p=>{
+  svg+=`<circle cx="${p.x}" cy="${p.y}" r="5" fill="#38a0ff">
+  <title>${formatHistoryDate(p.item.date)}: ${formatNumber(p.item.value)}</title>
+  </circle>`;
+ });
+
+ svg+=`
+ <text x="${left}" y="${height-8}" fill="#9eb1cc" font-size="12">${formatHistoryDate(usable[0].date)}</text>
+ <text x="${width-right}" y="${height-8}" fill="#9eb1cc" font-size="12" text-anchor="end">${formatHistoryDate(usable[usable.length-1].date)}</text>
  <text x="${left-7}" y="${top+5}" fill="#9eb1cc" font-size="11" text-anchor="end">${formatNumber(max)}</text>
- <text x="${left-7}" y="${height-bottom}" fill="#9eb1cc" font-size="11" text-anchor="end">0</text></svg>`;
+ <text x="${left-7}" y="${height-bottom}" fill="#9eb1cc" font-size="11" text-anchor="end">0</text>
+ </svg>`;
+
  area.innerHTML='<div class="history-chart">'+svg+'</div>';
+
  const tableElement=document.createElement("table");
  tableElement.innerHTML="<thead><tr><th>Date</th><th>"+metric.charAt(0).toUpperCase()+metric.slice(1)+"</th></tr></thead>";
+
  const tbody=document.createElement("tbody");
+
  validRows.forEach(item=>{
-  const tr=document.createElement("tr"),date=document.createElement("td"),value=document.createElement("td");
-  date.textContent=item.date;value.textContent=formatNumber(item.value);
-  tr.append(date,value);tbody.append(tr);
+  const tr=document.createElement("tr");
+  const date=document.createElement("td");
+  const value=document.createElement("td");
+
+  date.textContent=formatHistoryDate(item.date);
+  value.textContent=formatNumber(item.value);
+
+  tr.append(date,value);
+  tbody.append(tr);
  });
- tableElement.append(tbody);table.append(tableElement);
+
+ tableElement.append(tbody);
+ table.append(tableElement);
 }
 
 function loadAnalyticsHistory(d){
@@ -346,19 +403,23 @@ window.loadAdvancedAnalytics=async function(){
   latestAnalytics=d;
   const posts=Array.isArray(d.posts)?d.posts:[];
   const raw=d.totals||{};
+
   function totalMetric(key){
    const direct=getMetric(raw,key);
    if(direct!==null)return direct;
    const values=posts.map(p=>getMetric(p,key)).filter(v=>v!==null);
    return values.length?values.reduce((a,b)=>a+b,0):null;
   }
+
   const t={
    reach:totalMetric("reach"),views:totalMetric("views"),likes:totalMetric("likes"),
    comments:totalMetric("comments"),shares:totalMetric("shares"),saves:totalMetric("saves"),
    interactions:totalMetric("interactions")
   };
+
   const engagement=validMetric(raw.engagementRate)!==null?raw.engagementRate:
    (t.reach!==null&&t.reach>0&&t.interactions!==null?(t.interactions/t.reach)*100:null);
+
   $("advReach").textContent=formatNumber(t.reach);
   $("advViews").textContent=formatNumber(t.views);
   $("advLikes").textContent=formatNumber(t.likes);
@@ -371,6 +432,7 @@ window.loadAdvancedAnalytics=async function(){
   loadAnalyticsHistory(d);
 
   const top=Array.isArray(d.topPosts)?d.topPosts:[...posts].sort((a,b)=>(getMetric(b,"interactions")??-1)-(getMetric(a,"interactions")??-1)).slice(0,3);
+
   top.forEach((p,i)=>{
    const c=document.createElement("div");c.className="analytics-post";
    const h=document.createElement("h3");h.textContent="#"+(i+1)+" Top Performing Post";
@@ -378,18 +440,23 @@ window.loadAdvancedAnalytics=async function(){
    const date=document.createElement("small");date.className="muted";date.textContent=p.timestamp?new Date(p.timestamp).toLocaleString():"Date unavailable";
    const g=document.createElement("div");g.className="grid";
    const values=[["Likes",p.likes],["Comments",p.comments],["Reach",p.reach],["Views",p.views],["Shares",p.shares],["Saves",p.saves],["Interactions",p.totalInteractions??p.interactions],["Engagement",p.engagementRate]];
+
    values.forEach(([label,value])=>{
     const b=document.createElement("div");b.className="stat";
     const sm=document.createElement("small");sm.textContent=label;
     const st=document.createElement("strong");st.textContent=label==="Engagement"?formatPercent(value):formatNumber(value);
     b.append(sm,st);g.append(b);
    });
+
    c.append(h,cap,date,g);
+
    if(p.permalink){
     const a=document.createElement("a");a.href=p.permalink;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="View Instagram Post ↗";c.append(a);
    }
+
    $("topPosts").append(c);
   });
+
   if(!top.length)$("topPosts").textContent="No top-performing posts available.";
  }catch(e){
   $("advancedMessage").textContent="Advanced Analytics Error: "+e.message;
@@ -423,22 +490,33 @@ window.loadInstagramMedia=async function(){
   latestMediaPosts=d.posts||[];
   if(!latestMediaPosts.length){$("mediaMessage").textContent="No Instagram posts found.";return;}
   $("mediaMessage").textContent="Showing "+(d.total||latestMediaPosts.length)+" recent Instagram posts.";
+
   latestMediaPosts.forEach(p=>{
    const c=document.createElement("div");c.className="media-card";
    const h=document.createElement("h3");h.textContent=p.mediaProductType||p.mediaType||"Instagram Post";
    const cap=document.createElement("p");cap.textContent=p.caption||"No caption";
    const dt=document.createElement("small");dt.className="muted";dt.textContent=p.timestamp?new Date(p.timestamp).toLocaleString():"Date unavailable";
    c.append(h,cap,dt);
-   if(p.image){const im=document.createElement("img");im.src=p.image;im.alt="Instagram post";im.className="media-image";im.onerror=()=>im.remove();c.append(im);}
+
+   if(p.image){
+    const im=document.createElement("img");im.src=p.image;im.alt="Instagram post";im.className="media-image";im.onerror=()=>im.remove();c.append(im);
+   }
+
    const g=document.createElement("div");g.className="grid";
+
    [["Likes",p.likes],["Comments",p.comments],["Reach",p.reach],["Views",p.views],["Saves",p.saves],["Shares",p.shares],["Interactions",p.totalInteractions]].forEach(([l,v])=>{
     const b=document.createElement("div");b.className="stat";
     const sm=document.createElement("small");sm.textContent=l;
     const st=document.createElement("strong");st.textContent=formatNumber(v);st.style.fontSize="22px";
     b.append(sm,st);g.append(b);
    });
+
    c.append(g);
-   if(p.permalink){const a=document.createElement("a");a.href=p.permalink;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="View Instagram Post ↗";c.append(a);}
+
+   if(p.permalink){
+    const a=document.createElement("a");a.href=p.permalink;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="View Instagram Post ↗";c.append(a);
+   }
+
    area.append(c);
   });
  }catch(e){$("mediaMessage").textContent="Instagram Analytics Error: "+e.message;}
@@ -475,17 +553,25 @@ window.loadScheduledPosts=async function(){
  try{
   const d=await api("/api/scheduled-posts",{headers:headers()});scheduledCache=d.posts||[];area.innerHTML="";
   if(!scheduledCache.length)area.textContent="No scheduled posts.";
+
   scheduledCache.forEach(p=>{
    const x=document.createElement("div");x.className="comment";
    const h=document.createElement("strong");h.textContent=(p.media_type||"POST").toUpperCase()+" · "+p.status;
    const dt=document.createElement("p");dt.textContent=new Date(p.scheduled_at).toLocaleString();x.append(h,dt);
-   if(p.status==="pending"){const b=document.createElement("button");b.className="secondary danger";b.textContent="Cancel";b.onclick=()=>cancelScheduledPost(p.id);x.append(b);}
+   if(p.status==="pending"){
+    const b=document.createElement("button");b.className="secondary danger";b.textContent="Cancel";b.onclick=()=>cancelScheduledPost(p.id);x.append(b);
+   }
    area.append(x);
   });
+
   const upcoming=scheduledCache.filter(p=>p.status==="pending").sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)).slice(0,5);
   $("dashboardUpcoming").innerHTML="";
   if(!upcoming.length)$("dashboardUpcoming").textContent="No upcoming scheduled posts.";
-  upcoming.forEach(p=>{const d=document.createElement("div");d.className="comment";d.textContent=(p.media_type||"Post").toUpperCase()+" · "+new Date(p.scheduled_at).toLocaleString();$("dashboardUpcoming").append(d);});
+
+  upcoming.forEach(p=>{
+   const d=document.createElement("div");d.className="comment";d.textContent=(p.media_type||"Post").toUpperCase()+" · "+new Date(p.scheduled_at).toLocaleString();$("dashboardUpcoming").append(d);
+  });
+
   checkScheduleChanges(scheduledCache);renderCalendar();
  }catch(e){area.textContent="Error: "+e.message;}
 };
@@ -509,7 +595,10 @@ function checkScheduleChanges(posts){
  renderNotifications();
 }
 
-window.refreshAll=async function(){await loadStatus();if(adminKey){await loadStats();await loadComments();}};
+window.refreshAll=async function(){
+ await loadStatus();
+ if(adminKey){await loadStats();await loadComments();}
+};
 
 window.researchHashtags=function(){
  const topic=$("hashtagTopic").value.trim().toLowerCase(),cat=$("hashtagCategory").value;
@@ -520,7 +609,10 @@ window.researchHashtags=function(){
   reels:["#gamingreels","#freefirereels","#gamingclips","#booyahmoment","#reelsindia","#instagaming","#viralreels","#gamingcontent"]
  };
  let tags=[...sets[cat]];
- if(topic){const words=topic.split(/[^a-z0-9]+/).filter(w=>w.length>2).slice(0,4).map(w=>"#"+w);tags=[...new Set([...words,...tags])];}
+ if(topic){
+  const words=topic.split(/[^a-z0-9]+/).filter(w=>w.length>2).slice(0,4).map(w=>"#"+w);
+  tags=[...new Set([...words,...tags])];
+ }
  const area=$("hashtagResults");area.innerHTML="<h3>Suggested hashtags</h3>";
  tags.forEach(t=>{const s=document.createElement("span");s.className="tag";s.textContent=t;area.append(s);});
  const b=document.createElement("button");b.className="secondary";b.textContent="Copy Hashtags";b.onclick=()=>copyText(tags.join(" "));
@@ -533,7 +625,10 @@ window.loadBestTimes=async function(){
  area.textContent="Analysing recent post timestamps...";
  try{
   let posts=latestMediaPosts;
-  if(!posts.length){const d=await api("/api/instagram-media",{headers:headers()});posts=d.posts||[];latestMediaPosts=posts;}
+  if(!posts.length){
+   const d=await api("/api/instagram-media",{headers:headers()});
+   posts=d.posts||[];latestMediaPosts=posts;
+  }
   const hours={};
   posts.forEach(p=>{
    if(!p.timestamp)return;
@@ -544,12 +639,20 @@ window.loadBestTimes=async function(){
     hours[h].score+=engagement;hours[h].count++;
    }
   });
+
   let slots=Object.entries(hours).map(([h,v])=>({hour:Number(h),score:v.score/v.count,count:v.count})).sort((a,b)=>b.score-a.score).slice(0,3);
   area.innerHTML="";
+
   if(slots.length){
    const p=document.createElement("p");p.textContent="Based on available post timestamps and interactions:";area.append(p);
-   slots.forEach((s,i)=>{const d=document.createElement("div");d.className="stat";d.style.margin="8px 0";d.innerHTML="<small>Suggested test slot #"+(i+1)+" · "+s.count+" post(s) in sample</small><strong>"+hourLabel(s.hour)+"</strong>";area.append(d);});
-  }else{area.innerHTML="<div class='info'>Not enough timestamp data found. Start by testing these windows (local time):<br><b>12:00 PM–2:00 PM</b><br><b>6:00 PM–9:00 PM</b><br><b>9:00 PM–10:00 PM</b></div>";}
+   slots.forEach((s,i)=>{
+    const d=document.createElement("div");d.className="stat";d.style.margin="8px 0";
+    d.innerHTML="<small>Suggested test slot #"+(i+1)+" · "+s.count+" post(s) in sample</small><strong>"+hourLabel(s.hour)+"</strong>";
+    area.append(d);
+   });
+  }else{
+   area.innerHTML="<div class='info'>Not enough timestamp data found. Start by testing these windows (local time):<br><b>12:00 PM–2:00 PM</b><br><b>6:00 PM–9:00 PM</b><br><b>9:00 PM–10:00 PM</b></div>";
+  }
  }catch(e){area.textContent="Could not calculate: "+e.message;}
 };
 
@@ -561,14 +664,19 @@ function renderCalendar(){
  const y=calendarDate.getFullYear(),m=calendarDate.getMonth();
  $("calendarTitle").textContent=calendarDate.toLocaleString("en-IN",{month:"long",year:"numeric"});
  grid.innerHTML="";
- ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(x=>{const d=document.createElement("div");d.className="muted";d.style.textAlign="center";d.textContent=x;grid.append(d);});
+ ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(x=>{
+  const d=document.createElement("div");d.className="muted";d.style.textAlign="center";d.textContent=x;grid.append(d);
+ });
  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),today=new Date();
  for(let i=0;i<first;i++){const d=document.createElement("div");d.className="day muted-day";grid.append(d);}
  for(let n=1;n<=days;n++){
   const date=new Date(y,m,n),cell=document.createElement("div");
   cell.className="day"+(date.toDateString()===today.toDateString()?" today":"");
   const num=document.createElement("b");num.textContent=n;cell.append(num);
-  scheduledCache.filter(p=>{const dt=new Date(p.scheduled_at);return dt.getFullYear()===y&&dt.getMonth()===m&&dt.getDate()===n;}).forEach(p=>{
+  scheduledCache.filter(p=>{
+   const dt=new Date(p.scheduled_at);
+   return dt.getFullYear()===y&&dt.getMonth()===m&&dt.getDate()===n;
+  }).forEach(p=>{
    const ev=document.createElement("span");ev.className="day-event";ev.textContent=(p.media_type||"Post")+" · "+(p.status||"");cell.append(ev);
   });
   grid.append(cell);
@@ -582,45 +690,71 @@ window.generateCaption=function(){
  $("generatedCaption").value=openers[tone]+"\n\n"+topic+"\n\nJoin the action with AYUSH FF ESPORTS. Bring your best game, play fair and give it your all!\n\n"+calls[cta]+"\n\n#AYUSHFFESPORTS #FreeFire #FreeFireIndia #FreeFireTournament #GamingIndia #EsportsIndia #Booyah";
 };
 window.copyGeneratedCaption=()=>copyText($("generatedCaption").value);
-window.useCaptionInScheduler=function(){$("postCaption").value=$("generatedCaption").value;showPage("scheduled");};
+window.useCaptionInScheduler=function(){
+ $("postCaption").value=$("generatedCaption").value;
+ showPage("scheduled");
+};
 
-function getCompetitors(){try{return JSON.parse(localStorage.getItem("ayush_competitors")||"[]");}catch(e){return [];}}
+function getCompetitors(){
+ try{return JSON.parse(localStorage.getItem("ayush_competitors")||"[]");}
+ catch(e){return [];}
+}
+
 window.addCompetitor=function(){
  const username=$("competitorUsername").value.trim().replace(/^@/,""),url=$("competitorUrl").value.trim(),followers=$("competitorFollowers").value,notes=$("competitorNotes").value.trim();
- if(!username||!url||!/^https:\/\/(www\.)?instagram\.com\//i.test(url)){alert("Username aur valid public Instagram URL enter karo.");return;}
- const list=getCompetitors();list.push({id:Date.now(),username,url,followers:followers===""?null:Number(followers),notes,updated:new Date().toISOString()});
+ if(!username||!url||!/^https:\/\/(www\.)?instagram\.com\//i.test(url)){
+  alert("Username aur valid public Instagram URL enter karo.");return;
+ }
+ const list=getCompetitors();
+ list.push({id:Date.now(),username,url,followers:followers===""?null:Number(followers),notes,updated:new Date().toISOString()});
  localStorage.setItem("ayush_competitors",JSON.stringify(list));
  ["competitorUsername","competitorUrl","competitorFollowers","competitorNotes"].forEach(id=>$(id).value="");
  renderCompetitors();
 };
+
 window.renderCompetitors=function(){
  const area=$("competitorList");if(!area)return;
  const list=getCompetitors();area.innerHTML="";
  if(!list.length){area.textContent="No profiles added yet.";return;}
+
  list.forEach(p=>{
   const c=document.createElement("div");c.className="comment";
   const h=document.createElement("strong");h.textContent="@"+p.username;
   const info=document.createElement("p");info.textContent="Followers: "+(p.followers===null?"Not entered":formatNumber(p.followers))+" · Updated: "+new Date(p.updated).toLocaleDateString();
   const notes=document.createElement("p");notes.textContent=p.notes||"No notes";
   const a=document.createElement("a");a.href=p.url;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="Open public profile ↗";
+
   const edit=document.createElement("button");edit.className="secondary small-btn";edit.textContent="Update followers";
   edit.onclick=()=>{
    const v=prompt("Enter current follower count:",p.followers??"");if(v===null)return;
    if(v.trim()===""||!Number.isFinite(Number(v))||Number(v)<0){alert("Valid follower count enter karo.");return;}
-   p.followers=Number(v);p.updated=new Date().toISOString();localStorage.setItem("ayush_competitors",JSON.stringify(list));renderCompetitors();
+   p.followers=Number(v);p.updated=new Date().toISOString();
+   localStorage.setItem("ayush_competitors",JSON.stringify(list));renderCompetitors();
   };
+
   const del=document.createElement("button");del.className="secondary danger small-btn";del.textContent="Delete";del.style.marginLeft="7px";
-  del.onclick=()=>{if(confirm("Delete this tracked profile?")){localStorage.setItem("ayush_competitors",JSON.stringify(list.filter(x=>x.id!==p.id)));renderCompetitors();}};
+  del.onclick=()=>{
+   if(confirm("Delete this tracked profile?")){
+    localStorage.setItem("ayush_competitors",JSON.stringify(list.filter(x=>x.id!==p.id)));
+    renderCompetitors();
+   }
+  };
+
   c.append(h,info,notes,a,document.createElement("br"),edit,del);area.append(c);
  });
 };
 
 window.enableNotifications=async function(){
- if(!("Notification"in window)){$("notificationPermission").textContent="This browser does not support notifications.";return;}
- const p=await Notification.requestPermission();$("notificationPermission").textContent="Notification permission: "+p;
+ if(!("Notification"in window)){
+  $("notificationPermission").textContent="This browser does not support notifications.";return;
+ }
+ const p=await Notification.requestPermission();
+ $("notificationPermission").textContent="Notification permission: "+p;
 };
+
 function renderNotifications(){
- const a=$("notificationList");if(!a)return;a.innerHTML="";
+ const a=$("notificationList");if(!a)return;
+ a.innerHTML="";
  if(!notifications.length){a.textContent="No new status updates detected yet.";return;}
  notifications.slice(0,30).forEach(n=>{
   const d=document.createElement("div");d.className="comment";
@@ -629,13 +763,16 @@ function renderNotifications(){
   d.append(s,document.createElement("br"),sm);a.append(d);
  });
 }
+
 window.clearNotifications=function(){notifications=[];renderNotifications();};
 
 function copyText(text){
  if(!text){alert("Nothing to copy.");return;}
- if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(()=>alert("Copied!")).catch(()=>fallbackCopy(text));
- else fallbackCopy(text);
+ if(navigator.clipboard&&window.isSecureContext){
+  navigator.clipboard.writeText(text).then(()=>alert("Copied!")).catch(()=>fallbackCopy(text));
+ }else fallbackCopy(text);
 }
+
 function fallbackCopy(text){
  const t=document.createElement("textarea");t.value=text;document.body.append(t);t.select();document.execCommand("copy");t.remove();alert("Copied!");
 }
@@ -645,51 +782,92 @@ window.exportAnalyticsCSV=function(){
  const rows=[["AYUSH AUTO ANALYTICS REPORT"],[],["ACCOUNT PERFORMANCE","VALUE"]];
  const totals=latestAnalytics?.totals||{};
  Object.entries(totals).forEach(([key,value])=>rows.push([key,value??"N/A"]));
+
  rows.push([],["TODAY VS YESTERDAY"],["Metric","Today","Yesterday"]);
  const comparisons=latestAnalytics?.comparisons||{};
  const today=getSnapshotTotals(comparisons.today),yesterday=getSnapshotTotals(comparisons.yesterday);
+
  ["reach","views","likes","comments","shares","saves","interactions"].forEach(key=>{
   rows.push([key,getMetric(today,key)??"N/A",getMetric(yesterday,key)??"N/A"]);
  });
+
  rows.push([],["DAILY ANALYTICS HISTORY"]);
  rows.push(["Date","Reach","Views","Likes","Comments","Shares","Saves","Interactions"]);
+
  (analyticsHistory.last30Days||[]).forEach(item=>{
   const t=getSnapshotTotals(item);
-  rows.push([getSnapshotDate(item),getMetric(t,"reach")??"N/A",getMetric(t,"views")??"N/A",getMetric(t,"likes")??"N/A",getMetric(t,"comments")??"N/A",getMetric(t,"shares")??"N/A",getMetric(t,"saves")??"N/A",getMetric(t,"interactions")??"N/A"]);
+  rows.push([
+   formatHistoryDate(getSnapshotDate(item)),
+   getMetric(t,"reach")??"N/A",
+   getMetric(t,"views")??"N/A",
+   getMetric(t,"likes")??"N/A",
+   getMetric(t,"comments")??"N/A",
+   getMetric(t,"shares")??"N/A",
+   getMetric(t,"saves")??"N/A",
+   getMetric(t,"interactions")??"N/A"
+  ]);
  });
+
  rows.push([],["INSTAGRAM POSTS"]);
  rows.push(["Caption","Likes","Comments","Reach","Views","Shares","Saves","Interactions","Timestamp"]);
- latestMediaPosts.forEach(p=>rows.push([p.caption||"",p.likes??"N/A",p.comments??"N/A",p.reach??"N/A",p.views??"N/A",p.shares??"N/A",p.saves??"N/A",p.totalInteractions??"N/A",p.timestamp||""]));
+
+ latestMediaPosts.forEach(p=>rows.push([
+  p.caption||"",p.likes??"N/A",p.comments??"N/A",p.reach??"N/A",
+  p.views??"N/A",p.shares??"N/A",p.saves??"N/A",
+  p.totalInteractions??"N/A",p.timestamp||""
+ ]));
+
  const csv=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
  const url=URL.createObjectURL(blob),a=document.createElement("a");
  a.href=url;a.download="ayush-auto-analytics.csv";a.click();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-window.exportAnalyticsPDF=function(){showPage("analytics");window.print();};
+
+window.exportAnalyticsPDF=function(){
+ showPage("analytics");
+ window.print();
+};
 
 window.saveCustomization=function(){
- const c={accent:$("accentChoice").value,compact:$("compactMode").checked,comment:$("showCommentStats").checked,upcoming:$("showUpcoming").checked};
- localStorage.setItem("ayush_dashboard_custom",JSON.stringify(c));applyCustomization();
+ const c={
+  accent:$("accentChoice").value,
+  compact:$("compactMode").checked,
+  comment:$("showCommentStats").checked,
+  upcoming:$("showUpcoming").checked
+ };
+ localStorage.setItem("ayush_dashboard_custom",JSON.stringify(c));
+ applyCustomization();
 };
+
 function applyCustomization(){
- let c={};try{c=JSON.parse(localStorage.getItem("ayush_dashboard_custom")||"{}");}catch(e){}
+ let c={};
+ try{c=JSON.parse(localStorage.getItem("ayush_dashboard_custom")||"{}");}catch(e){}
  document.documentElement.style.setProperty("--accent",c.accent||"#1677ff");
  document.body.classList.toggle("compact",!!c.compact);
+
  const commentCard=$("total")?.closest(".card"),upcoming=$("dashboardUpcoming")?.closest(".card");
  if(commentCard)commentCard.style.display=c.comment===false?"none":"";
  if(upcoming)upcoming.style.display=c.upcoming===false?"none":"";
+
  $("accentChoice").value=c.accent||"#1677ff";
  $("compactMode").checked=!!c.compact;
  $("showCommentStats").checked=c.comment!==false;
  $("showUpcoming").checked=c.upcoming!==false;
 }
-window.resetCustomization=function(){localStorage.removeItem("ayush_dashboard_custom");applyCustomization();};
+
+window.resetCustomization=function(){
+ localStorage.removeItem("ayush_dashboard_custom");
+ applyCustomization();
+};
 
 applyCustomization();
 renderCalendar();
 refreshAll();
-setInterval(()=>{refreshAll();if(adminKey)loadScheduledPosts();},30000);
+setInterval(()=>{
+ refreshAll();
+ if(adminKey)loadScheduledPosts();
+},30000);
 </script>
 </body>
 </html>
