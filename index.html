@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,6 +53,20 @@ button.danger{background:#9b303c;color:white}button:disabled{opacity:.5;cursor:n
 .day-event{display:block;background:#24558d;border-radius:5px;padding:4px;margin-top:5px;color:white}
 .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:500px}th,td{text-align:left;padding:10px;border-bottom:1px solid #344967;font-size:13px}
 .small-btn{padding:7px 10px!important;font-size:12px!important}
+.analytics-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.analytics-controls select{max-width:220px;margin:0}
+.comparison-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+.comparison-item{background:#172743;border:1px solid #344967;border-radius:10px;padding:14px;min-width:0}
+.comparison-item small{color:var(--muted)}
+.comparison-item strong{display:block;font-size:21px;margin:8px 0;overflow-wrap:anywhere}
+.change-up{color:#38df9a;font-size:13px}
+.change-down{color:#ff7070;font-size:13px}
+.change-neutral{color:#9eb1cc;font-size:13px}
+.history-chart{width:100%;min-height:230px;overflow:hidden;background:#0d192d;border:1px solid #344967;border-radius:10px;padding:12px}
+.history-chart svg{width:100%;height:220px;display:block;overflow:visible}
+.history-empty{padding:25px;text-align:center;color:var(--muted);background:#172743;border-radius:10px}
+.history-table{overflow-x:auto}
+.history-table table{min-width:650px}
 footer{text-align:center;color:#7386a3;padding:20px}
 body.compact .card{padding:12px;margin-bottom:10px}body.compact .stat{padding:11px}body.compact .content{padding:15px}
 @media(max-width:900px){.sidebar{width:215px}}
@@ -80,6 +95,7 @@ body.compact .card{padding:12px;margin-bottom:10px}body.compact .stat{padding:11
 <button class="nav-btn" data-page="settings" onclick="showPage('settings')">⚙️ Settings</button>
 </aside>
 <main class="content">
+
 <section class="page active" id="page-dashboard">
 <div class="page-heading"><h1>Dashboard</h1><p>Welcome to AYUSH AUTO Instagram Automation.</p></div>
 <div class="card"><div class="row"><div><h2>Instagram Connection</h2><div id="connection" class="status">Checking connection...</div></div><button class="secondary" onclick="refreshAll()">↻ Refresh</button></div><p id="uptime" class="muted"></p></div>
@@ -101,26 +117,49 @@ body.compact .card{padding:12px;margin-bottom:10px}body.compact .stat{padding:11
 <div class="card"><h2>➕ Create Scheduled Post</h2><label>Post Type</label><select id="mediaType"><option value="image">Photo</option><option value="reel">Reel</option></select><label>Public HTTPS Media URL</label><input id="mediaUrl" type="url" placeholder="https://example.com/photo.jpg"><label>Caption</label><textarea id="postCaption" placeholder="Write your Instagram caption..."></textarea><label>Publish Date & Time</label><input id="scheduledAt" type="datetime-local"><button class="primary" onclick="schedulePost()">Schedule Post</button><div id="scheduleMessage" class="message"></div></div>
 <div class="card"><div class="row"><h2>Scheduled Post History</h2><button class="secondary" onclick="loadScheduledPosts()">↻ Refresh</button></div><div id="scheduledPosts">Unlock admin access to view scheduled posts.</div></div></section>
 
-<section class="page" id="page-analytics"><div class="page-heading"><h1>Advanced Analytics</h1><p>Instagram performance, engagement and top-performing posts.</p></div>
-<div class="card no-print"><div class="row"><h2>Export Reports</h2><div class="row"><button class="secondary" onclick="exportAnalyticsCSV()">⬇ Export CSV</button><button class="secondary" onclick="exportAnalyticsPDF()">⬇ Save PDF</button></div></div><p class="muted">CSV downloads available metrics. PDF opens the browser print dialog; choose Save as PDF.</p></div>
+<section class="page" id="page-analytics">
+<div class="page-heading"><h1>Advanced Analytics</h1><p>Instagram performance, engagement and top-performing posts.</p></div>
+<div class="card no-print"><div class="row"><h2>Export Reports</h2><div class="row"><button class="secondary" onclick="exportAnalyticsCSV()">⬇ Export CSV</button><button class="secondary" onclick="exportAnalyticsPDF()">⬇ Save PDF</button></div></div><p class="muted">CSV downloads available metrics and historical analytics. PDF opens the browser print dialog.</p></div>
 <div class="card"><div class="row"><h2>🚀 Account Performance</h2><button class="secondary" onclick="loadAdvancedAnalytics()">↻ Refresh Analytics</button></div><p id="advancedMessage" class="muted">Open Analytics to load advanced insights.</p><h3>📈 Performance Overview</h3>
 <div class="grid"><div class="stat"><small>Total Reach</small><strong id="advReach">N/A</strong></div><div class="stat"><small>Total Views</small><strong id="advViews">N/A</strong></div><div class="stat"><small>Total Likes</small><strong id="advLikes">N/A</strong></div><div class="stat"><small>Total Comments</small><strong id="advComments">N/A</strong></div><div class="stat"><small>Total Shares</small><strong id="advShares">N/A</strong></div><div class="stat"><small>Total Saves</small><strong id="advSaves">N/A</strong></div><div class="stat"><small>Interactions</small><strong id="advInteractions">N/A</strong></div><div class="stat"><small>Engagement Rate</small><strong id="advEngagement">N/A</strong></div></div>
 <p class="muted" style="font-size:12px;margin-top:15px">Based on latest 10 Instagram posts. Reach is summed across posts, not unique account reach. Engagement rate is an estimate.</p></div>
+
+<div class="card">
+<h2>📅 Today vs Yesterday</h2>
+<p class="muted">Compare today's analytics with yesterday's saved snapshot.</p>
+<div id="comparisonMessage" class="muted">Loading comparison...</div>
+<div id="comparisonGrid" class="comparison-grid"></div>
+</div>
+
+<div class="card">
+<div class="row"><h2>📈 Analytics History</h2>
+<div class="analytics-controls">
+<select id="historyPeriod" onchange="renderHistoryChart()"><option value="7">Last 7 Days</option><option value="30">Last 30 Days</option></select>
+<select id="historyMetric" onchange="renderHistoryChart()">
+<option value="reach">Reach</option><option value="views">Views</option><option value="interactions">Interactions</option><option value="likes">Likes</option><option value="comments">Comments</option><option value="shares">Shares</option><option value="saves">Saves</option>
+</select>
+</div></div>
+<p id="historyMessage" class="muted">History will appear here.</p>
+<div id="historyChart"></div>
+<div id="historyTable" class="history-table"></div>
+</div>
+
 <div class="card"><h2>🏆 Top 3 Performing Posts</h2><p class="muted">Posts ranked by interactions.</p><div id="topPosts"><p class="muted">Advanced analytics load hone par yahan top posts dikhenge.</p></div></div>
 <div class="card"><div class="row"><h2>Comment Analytics</h2><button class="secondary" onclick="loadStats()">↻ Refresh</button></div><div class="grid"><div class="stat"><small>Total Comments</small><strong id="aTotal">0</strong></div><div class="stat"><small>Replies Sent</small><strong id="aReplied">0</strong></div><div class="stat"><small>Failed Replies</small><strong id="aFailed">0</strong></div><div class="stat"><small>Pending Replies</small><strong id="aPending">0</strong></div><div class="stat"><small>Ignored Comments</small><strong id="aIgnored">0</strong></div></div></div>
-<div class="card"><div class="row"><h2>📊 Instagram Post Insights</h2><button class="secondary" onclick="loadInstagramMedia()">↻ Refresh Posts</button></div><p id="mediaMessage" class="muted">Open Analytics to load your Instagram posts.</p><div id="instagramMedia"></div></div></section>
+<div class="card"><div class="row"><h2>📊 Instagram Post Insights</h2><button class="secondary" onclick="loadInstagramMedia()">↻ Refresh Posts</button></div><p id="mediaMessage" class="muted">Open Analytics to load your Instagram posts.</p><div id="instagramMedia"></div></div>
+</section>
 
 <section class="page" id="page-hashtags"><div class="page-heading"><h1>Hashtag Research</h1><p>Topic-based hashtag ideas for Free Fire and esports posts.</p></div><div class="card"><label>Post topic / keyword</label><input id="hashtagTopic" placeholder="Example: Free Fire tournament, Booyah, custom room"><label>Choose category</label><select id="hashtagCategory"><option value="freefire">Free Fire / Gaming</option><option value="tournament">Tournament</option><option value="esports">Esports / Community</option><option value="reels">Reels / Reach</option></select><button class="primary" onclick="researchHashtags()">Find Hashtags</button><div id="hashtagResults" style="margin-top:15px"></div><p class="muted">Suggestions are curated topic matches, not live Instagram trend or volume data. Check each hashtag in Instagram before posting.</p></div></section>
 
-<section class="page" id="page-besttime"><div class="page-heading"><h1>Best Time to Post</h1><p>Suggested posting windows using available recent post performance.</p></div><div class="card"><div class="row"><h2>⏰ Your suggested time slots</h2><button class="secondary" onclick="loadBestTimes()">↻ Calculate</button></div><div id="bestTimeResults" class="muted">Unlock admin access, then calculate recommendations.</div><p class="muted">These are estimates from a small sample of recent posts, not guaranteed peak audience times. If there is not enough data, general test windows are shown.</p></div></section>
+<section class="page" id="page-besttime"><div class="page-heading"><h1>Best Time to Post</h1><p>Suggested posting windows using available recent post performance.</p></div><div class="card"><div class="row"><h2>⏰ Your suggested time slots</h2><button class="secondary" onclick="loadBestTimes()">↻ Calculate</button></div><div id="bestTimeResults" class="muted">Unlock admin access, then calculate recommendations.</div><p class="muted">These are estimates from a small sample of recent posts, not guaranteed peak audience times.</p></div></section>
 
 <section class="page" id="page-calendar"><div class="page-heading"><h1>Monthly Content Calendar</h1><p>View your scheduled posts by date.</p></div><div class="card"><div class="row"><button class="secondary" onclick="changeMonth(-1)">← Previous</button><h2 id="calendarTitle">Content Calendar</h2><button class="secondary" onclick="changeMonth(1)">Next →</button></div><div class="calendar" id="calendarGrid"></div><div id="calendarLegend" class="muted" style="margin-top:12px">Calendar shows posts saved in Scheduled Posts.</div></div></section>
 
 <section class="page" id="page-captions"><div class="page-heading"><h1>Caption + Hashtag Generator</h1><p>Create ready-to-edit captions using built-in templates.</p></div><div class="card"><label>Post topic</label><input id="captionTopic" placeholder="Example: Sunday Solo Tournament"><label>Tone</label><select id="captionTone"><option value="hype">Hype / Energetic</option><option value="professional">Professional</option><option value="friendly">Friendly</option><option value="urgent">Urgent / Last chance</option></select><label>Call to action</label><select id="captionCTA"><option value="comment">Comment below</option><option value="dm">DM to register</option><option value="follow">Follow for updates</option><option value="share">Share with squad</option></select><button class="primary" onclick="generateCaption()">Generate Caption</button><label style="margin-top:15px">Generated caption (edit before posting)</label><textarea id="generatedCaption" placeholder="Your caption will appear here..."></textarea><div class="row"><button class="secondary" onclick="copyGeneratedCaption()">Copy Caption</button><button class="secondary" onclick="useCaptionInScheduler()">Use in Scheduled Post</button></div><p class="muted">This is a built-in template generator. It does not call an external AI service.</p></div></section>
 
-<section class="page" id="page-competitors"><div class="page-heading"><h1>Competitor Public Profile Tracking</h1><p>Keep a manual record of public gaming/esports profiles.</p></div><div class="card"><h2>➕ Add a profile</h2><label>Instagram username</label><input id="competitorUsername" placeholder="example_gaming"><label>Public profile URL</label><input id="competitorUrl" type="url" placeholder="https://www.instagram.com/example_gaming/"><label>Follower count (manual update)</label><input id="competitorFollowers" type="number" min="0" placeholder="e.g. 12500"><label>Notes</label><textarea id="competitorNotes" placeholder="Content ideas, posting frequency, observations..."></textarea><button class="primary" onclick="addCompetitor()">Save Profile</button></div><div class="card"><div class="row"><h2>Tracked Profiles</h2><button class="secondary" onclick="renderCompetitors()">↻ Refresh</button></div><div id="competitorList"></div><p class="muted">Follower counts and notes are manually entered and saved in this browser only. This tool does not scrape profiles or access private information.</p></div></section>
+<section class="page" id="page-competitors"><div class="page-heading"><h1>Competitor Public Profile Tracking</h1><p>Keep a manual record of public gaming/esports profiles.</p></div><div class="card"><h2>➕ Add a profile</h2><label>Instagram username</label><input id="competitorUsername" placeholder="example_gaming"><label>Public profile URL</label><input id="competitorUrl" type="url" placeholder="https://www.instagram.com/example_gaming/"><label>Follower count (manual update)</label><input id="competitorFollowers" type="number" min="0" placeholder="e.g. 12500"><label>Notes</label><textarea id="competitorNotes" placeholder="Content ideas, posting frequency, observations..."></textarea><button class="primary" onclick="addCompetitor()">Save Profile</button></div><div class="card"><div class="row"><h2>Tracked Profiles</h2><button class="secondary" onclick="renderCompetitors()">↻ Refresh</button></div><div id="competitorList"></div><p class="muted">Follower counts and notes are manually entered and saved in this browser only.</p></div></section>
 
-<section class="page" id="page-notifications"><div class="page-heading"><h1>Notifications</h1><p>See scheduled post status changes while this dashboard is open.</p></div><div class="card"><div class="row"><h2>🔔 Browser notifications</h2><button class="secondary" onclick="enableNotifications()">Enable Notifications</button></div><p id="notificationPermission" class="muted">Browser notification permission not requested.</p><div id="notificationList">No new status updates detected yet.</div><button class="secondary" onclick="clearNotifications()">Clear visible notifications</button><p class="muted">The dashboard checks status while it is open. Browser notifications may not appear when the browser or dashboard is closed.</p></div></section>
+<section class="page" id="page-notifications"><div class="page-heading"><h1>Notifications</h1><p>See scheduled post status changes while this dashboard is open.</p></div><div class="card"><div class="row"><h2>🔔 Browser notifications</h2><button class="secondary" onclick="enableNotifications()">Enable Notifications</button></div><p id="notificationPermission" class="muted">Browser notification permission not requested.</p><div id="notificationList">No new status updates detected yet.</div><button class="secondary" onclick="clearNotifications()">Clear visible notifications</button><p class="muted">The dashboard checks status while it is open.</p></div></section>
 
 <section class="page" id="page-settings"><div class="page-heading"><h1>Settings</h1><p>Admin access and dashboard customization.</p></div>
 <div class="card"><h2>🔐 Admin Access</h2><p class="muted">Enter your existing ADMIN_API_KEY from Render environment variables. Never share it with anyone.</p><input id="adminKey" type="password" placeholder="Admin API Key"><div class="row"><button class="primary" onclick="saveKey()">Unlock Dashboard</button><button class="secondary" onclick="clearKey()">Lock Dashboard</button></div><div id="adminMessage" class="message"></div></div>
@@ -133,95 +172,524 @@ body.compact .card{padding:12px;margin-bottom:10px}body.compact .stat{padding:11
 const API="https://ayush-ff-backend.onrender.com";
 let adminKey=sessionStorage.getItem("ayush_admin_key")||"";
 let latestAnalytics=null,latestMediaPosts=[],scheduledCache=[],calendarDate=new Date();
+let analyticsHistory={last7Days:[],last30Days:[]};
 let previousPostStatuses={},notifications=[];
 const $=id=>document.getElementById(id);
+
 function headers(){return {"Content-Type":"application/json","X-Admin-Key":adminKey};}
 async function api(path,options={}){const response=await fetch(API+path,options);let data={};try{data=await response.json()}catch(e){}if(!response.ok)throw new Error(data.message||data.error||"Request failed ("+response.status+")");return data;}
 function formatNumber(value){if(value===null||value===undefined||value==="")return "N/A";const n=Number(value);return Number.isFinite(n)?n.toLocaleString("en-IN"):"N/A";}
 function formatPercent(value){if(value===null||value===undefined||value==="")return "N/A";const n=Number(value);return Number.isFinite(n)?n.toFixed(2)+"%":"N/A";}
-window.showPage=function(name){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));$("page-"+name)?.classList.add("active");document.querySelector('[data-page="'+name+'"]')?.classList.add("active");$("sidebar").classList.remove("open");
-if(name==="comments")loadComments();if(name==="scheduled"||name==="calendar")loadScheduledPosts();if(name==="analytics"){loadStats();loadInstagramMedia();loadAdvancedAnalytics()}if(name==="besttime")loadBestTimes();if(name==="competitors")renderCompetitors();if(name==="calendar")renderCalendar();if(name==="notifications")renderNotifications();};
-window.toggleMenu=()=>$("sidebar").classList.toggle("open");
-window.saveKey=function(){const value=$("adminKey").value.trim();if(!value){$("adminMessage").textContent="Enter admin key.";return;}adminKey=value;sessionStorage.setItem("ayush_admin_key",value);$("adminKey").value="";$("adminMessage").textContent="Admin key saved for this browser session.";refreshAll();loadScheduledPosts();};
-window.clearKey=function(){sessionStorage.removeItem("ayush_admin_key");adminKey="";$("adminMessage").textContent="Dashboard locked.";["comments","scheduledPosts","instagramMedia","topPosts","dashboardUpcoming"].forEach(id=>$(id).textContent="Unlock admin access first.");$("mediaMessage").textContent="Unlock admin access first.";};
-async function loadStatus(){try{const d=await api("/api/status");$("connection").innerHTML=d.connected?'<span class="good">● Instagram Connected</span>':'<span class="bad">● Instagram Disconnected</span>';$("uptime").textContent="Server uptime: "+Math.floor((d.uptimeSeconds||0)/60)+" minutes";if(d.automation){$("autoReply").checked=Boolean(d.automation.autoCommentReply);$("replyText").value=d.automation.autoReplyText||"";}}catch(e){$("connection").textContent="Backend connection failed: "+e.message;}}
-window.loadStats=async function(){if(!adminKey)return;try{const d=await api("/api/comments/stats",{headers:headers()});const s=d.statistics||{};const map={total:s.total,replied:s.replied,failed:s.failed,pending:s.pending,ignored:s.ignored};Object.entries(map).forEach(([k,v])=>{$(k).textContent=formatNumber(v);$("a"+k[0].toUpperCase()+k.slice(1)).textContent=formatNumber(v);});}catch(e){$("adminMessage").textContent=e.message;}};
-window.loadAdvancedAnalytics=async function(){
-  if(!adminKey){$("advancedMessage").textContent="Unlock admin access first.";return;}
-  $("advancedMessage").textContent="Loading advanced analytics...";
-  $("topPosts").innerHTML="";
-  try{
-    const d=await api("/api/advanced-analytics",{headers:headers()});
-    if(!d.success)throw new Error(d.error||d.message||"Unable to load analytics");
-    latestAnalytics=d;
-    const posts=Array.isArray(d.posts)?d.posts:[];
-    const raw=d.totals||{};
-    const sum=(key,alt)=>posts.reduce((n,p)=>n+Number(p[key]??p[alt]??0),0);
-    const t={
-      reach:Number(raw.reach??raw.totalReach??sum("reach")),
-      views:Number(raw.views??raw.totalViews??sum("views")),
-      likes:Number(raw.likes??raw.totalLikes??sum("likes")),
-      comments:Number(raw.comments??raw.totalComments??sum("comments")),
-      shares:Number(raw.shares??raw.totalShares??sum("shares")),
-      saves:Number(raw.saves??raw.totalSaves??sum("saves")),
-      interactions:Number(raw.interactions??raw.totalInteractions??sum("totalInteractions","interactions"))
-    };
-    const engagement=raw.engagementRate??(t.reach>0?(t.interactions/t.reach)*100:null);
-    $("advReach").textContent=formatNumber(t.reach);
-    $("advViews").textContent=formatNumber(t.views);
-    $("advLikes").textContent=formatNumber(t.likes);
-    $("advComments").textContent=formatNumber(t.comments);
-    $("advShares").textContent=formatNumber(t.shares);
-    $("advSaves").textContent=formatNumber(t.saves);
-    $("advInteractions").textContent=formatNumber(t.interactions);
-    $("advEngagement").textContent=formatPercent(engagement);
-    $("advancedMessage").textContent="Analytics updated · "+(d.period||"Latest Instagram posts")+(d.note?" · "+d.note:"");
-    const top=Array.isArray(d.topPosts)?d.topPosts:[...posts].sort((a,b)=>Number(b.totalInteractions??b.interactions??0)-Number(a.totalInteractions??a.interactions??0)).slice(0,3);
-    top.forEach((p,i)=>{
-      const c=document.createElement("div");c.className="analytics-post";
-      const h=document.createElement("h3");h.textContent="#"+(i+1)+" Top Performing Post";
-      const cap=document.createElement("p");cap.textContent=p.caption||"No caption";
-      const date=document.createElement("small");date.className="muted";date.textContent=p.timestamp?new Date(p.timestamp).toLocaleString():"Date unavailable";
-      const g=document.createElement("div");g.className="grid";
-      const values=[["Likes",p.likes],["Comments",p.comments],["Reach",p.reach],["Views",p.views],["Shares",p.shares],["Saves",p.saves],["Interactions",p.totalInteractions??p.interactions],["Engagement",formatPercent(p.engagementRate)]];
-      values.forEach(([label,value])=>{const b=document.createElement("div");b.className="stat";const sm=document.createElement("small");sm.textContent=label;const st=document.createElement("strong");st.textContent=label==="Engagement"?value:formatNumber(value??0);b.append(sm,st);g.append(b);});
-      c.append(h,cap,date,g);
-      if(p.permalink){const a=document.createElement("a");a.href=p.permalink;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="View Instagram Post ↗";c.append(a);}
-      $("topPosts").append(c);
-    });
-    if(!top.length)$("topPosts").textContent="No top-performing posts available.";
-  }catch(e){$("advancedMessage").textContent="Advanced Analytics Error: "+e.message;}
+function validMetric(value){if(value===null||value===undefined||value==="")return null;const n=Number(value);return Number.isFinite(n)?n:null;}
+
+function getMetric(obj,key){
+ if(!obj)return null;
+ const aliases={
+  reach:["reach","totalReach"],
+  views:["views","totalViews"],
+  likes:["likes","totalLikes"],
+  comments:["comments","totalComments"],
+  shares:["shares","totalShares"],
+  saves:["saves","totalSaves"],
+  interactions:["interactions","totalInteractions"]
+ };
+ for(const k of aliases[key]||[key]){
+  const value=validMetric(obj[k]);
+  if(value!==null)return value;
+ }
+ return null;
+}
+function getSnapshotTotals(item){if(!item)return {};return item.totals&&typeof item.totals==="object"?item.totals:item;}
+function getSnapshotDate(item){return item?.date||item?.snapshot_date||item?.created_at||"";}
+
+window.showPage=function(name){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+ $("page-"+name)?.classList.add("active");
+ document.querySelector('[data-page="'+name+'"]')?.classList.add("active");
+ $("sidebar").classList.remove("open");
+ if(name==="comments")loadComments();
+ if(name==="scheduled"||name==="calendar")loadScheduledPosts();
+ if(name==="analytics"){loadStats();loadInstagramMedia();loadAdvancedAnalytics();}
+ if(name==="besttime")loadBestTimes();
+ if(name==="competitors")renderCompetitors();
+ if(name==="calendar")renderCalendar();
+ if(name==="notifications")renderNotifications();
 };
-window.loadComments=async function(){if(!adminKey){$("comments").textContent="Unlock admin access first.";return;}const a=$("comments");a.textContent="Loading comments...";try{const d=await api("/api/comments?limit=50",{headers:headers()});a.innerHTML="";if(!d.comments?.length){a.textContent="No comments found yet.";return;}d.comments.forEach(c=>{const x=document.createElement("div");x.className="comment";const n=document.createElement("strong");n.textContent="@"+(c.username||"Unknown");const p=document.createElement("p");p.textContent=c.comment_text||"(No text)";const s=document.createElement("small");s.textContent="Status: "+c.reply_status+" · "+(c.created_at||"");x.append(n,p,s);a.append(x);});}catch(e){a.textContent="Error: "+e.message;}};
-window.loadInstagramMedia=async function(){if(!adminKey){$("mediaMessage").textContent="Unlock admin access first.";return;}const area=$("instagramMedia");$("mediaMessage").textContent="Loading Instagram posts and insights...";area.innerHTML="";try{const d=await api("/api/instagram-media",{headers:headers()});if(!d.success)throw new Error(d.message||"Unable to load posts");latestMediaPosts=d.posts||[];if(!latestMediaPosts.length){$("mediaMessage").textContent="No Instagram posts found.";return;}$("mediaMessage").textContent="Showing "+(d.total||latestMediaPosts.length)+" recent Instagram posts.";latestMediaPosts.forEach(p=>{const c=document.createElement("div");c.className="media-card";const h=document.createElement("h3");h.textContent=p.mediaProductType||p.mediaType||"Instagram Post";const cap=document.createElement("p");cap.textContent=p.caption||"No caption";const dt=document.createElement("small");dt.className="muted";dt.textContent=p.timestamp?new Date(p.timestamp).toLocaleString():"Date unavailable";c.append(h,cap,dt);if(p.image){const im=document.createElement("img");im.src=p.image;im.alt="Instagram post";im.className="media-image";im.onerror=()=>im.remove();c.append(im);}const g=document.createElement("div");g.className="grid";[["Likes",p.likes],["Comments",p.comments],["Reach",p.reach],["Views",p.views],["Saves",p.saves],["Shares",p.shares],["Interactions",p.totalInteractions]].forEach(([l,v])=>{const b=document.createElement("div");b.className="stat";const sm=document.createElement("small");sm.textContent=l;const st=document.createElement("strong");st.textContent=formatNumber(v??0);st.style.fontSize="22px";b.append(sm,st);g.append(b);});c.append(g);if(p.permalink){const a=document.createElement("a");a.href=p.permalink;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="View Instagram Post ↗";c.append(a);}area.append(c);});}catch(e){$("mediaMessage").textContent="Instagram Analytics Error: "+e.message;}};
-window.saveSettings=async function(){if(!adminKey){alert("Unlock dashboard first.");return;}$("message").textContent="Saving...";try{await api("/api/settings",{method:"POST",headers:headers(),body:JSON.stringify({autoCommentReply:$("autoReply").checked,autoReplyText:$("replyText").value.trim()})});$("message").textContent="Settings saved successfully!";await loadStatus();}catch(e){$("message").textContent="Error: "+e.message;}};
-window.schedulePost=async function(){if(!adminKey){alert("Unlock dashboard first.");return;}const mediaType=$("mediaType").value,mediaUrl=$("mediaUrl").value.trim(),caption=$("postCaption").value,scheduledAt=$("scheduledAt").value;if(!mediaUrl||!scheduledAt){alert("Media URL aur date/time required hain.");return;}if(!mediaUrl.startsWith("https://")){alert("Public HTTPS URL required.");return;}const date=new Date(scheduledAt);if(isNaN(date)||date<=new Date()){alert("Future date and time select karo.");return;}$("scheduleMessage").textContent="Scheduling...";try{await api("/api/schedule",{method:"POST",headers:headers(),body:JSON.stringify({mediaType,mediaUrl,caption,scheduledAt:date.toISOString()})});$("scheduleMessage").textContent="Post scheduled successfully!";$("mediaUrl").value="";$("postCaption").value="";$("scheduledAt").value="";await loadScheduledPosts();}catch(e){$("scheduleMessage").textContent="Error: "+e.message;}};
-window.loadScheduledPosts=async function(){if(!adminKey){$("scheduledPosts").textContent="Unlock admin access first.";$("dashboardUpcoming").textContent="Unlock admin access first.";return;}const area=$("scheduledPosts");area.textContent="Loading...";try{const d=await api("/api/scheduled-posts",{headers:headers()});scheduledCache=d.posts||[];area.innerHTML="";if(!scheduledCache.length)area.textContent="No scheduled posts.";scheduledCache.forEach(p=>{const x=document.createElement("div");x.className="comment";const h=document.createElement("strong");h.textContent=(p.media_type||"POST").toUpperCase()+" · "+p.status;const dt=document.createElement("p");dt.textContent=new Date(p.scheduled_at).toLocaleString();x.append(h,dt);if(p.status==="pending"){const b=document.createElement("button");b.className="secondary danger";b.textContent="Cancel";b.onclick=()=>cancelScheduledPost(p.id);x.append(b);}area.append(x);});const upcoming=scheduledCache.filter(p=>p.status==="pending").sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)).slice(0,5);$("dashboardUpcoming").innerHTML="";if(!upcoming.length)$("dashboardUpcoming").textContent="No upcoming scheduled posts.";upcoming.forEach(p=>{const d=document.createElement("div");d.className="comment";d.textContent=(p.media_type||"Post").toUpperCase()+" · "+new Date(p.scheduled_at).toLocaleString();$("dashboardUpcoming").append(d);});checkScheduleChanges(scheduledCache);renderCalendar();}catch(e){area.textContent="Error: "+e.message;}};
-window.cancelScheduledPost=async function(id){if(!confirm("Cancel this scheduled post?"))return;try{await api("/api/scheduled-posts/"+id,{method:"DELETE",headers:headers()});await loadScheduledPosts();}catch(e){alert(e.message);}};
-function checkScheduleChanges(posts){posts.forEach(p=>{const id=String(p.id),status=String(p.status||"unknown");if(previousPostStatuses[id]&&previousPostStatuses[id]!==status&&["published","failed"].includes(status.toLowerCase())){const msg="Scheduled post "+status+": "+new Date(p.scheduled_at).toLocaleString();notifications.unshift({text:msg,date:new Date().toLocaleString()});if("Notification"in window&&Notification.permission==="granted")new Notification("AYUSH AUTO", {body:msg});}previousPostStatuses[id]=status;});renderNotifications();}
+window.toggleMenu=()=>$("sidebar").classList.toggle("open");
+
+window.saveKey=function(){
+ const value=$("adminKey").value.trim();
+ if(!value){$("adminMessage").textContent="Enter admin key.";return;}
+ adminKey=value;sessionStorage.setItem("ayush_admin_key",value);
+ $("adminKey").value="";
+ $("adminMessage").textContent="Admin key saved for this browser session.";
+ refreshAll();loadScheduledPosts();
+};
+window.clearKey=function(){
+ sessionStorage.removeItem("ayush_admin_key");adminKey="";
+ $("adminMessage").textContent="Dashboard locked.";
+ ["comments","scheduledPosts","instagramMedia","topPosts","dashboardUpcoming"].forEach(id=>$(id).textContent="Unlock admin access first.");
+ $("mediaMessage").textContent="Unlock admin access first.";
+};
+
+async function loadStatus(){
+ try{
+  const d=await api("/api/status");
+  $("connection").innerHTML=d.connected?'<span class="good">● Instagram Connected</span>':'<span class="bad">● Instagram Disconnected</span>';
+  $("uptime").textContent="Server uptime: "+Math.floor((d.uptimeSeconds||0)/60)+" minutes";
+  if(d.automation){$("autoReply").checked=Boolean(d.automation.autoCommentReply);$("replyText").value=d.automation.autoReplyText||"";}
+ }catch(e){$("connection").textContent="Backend connection failed: "+e.message;}
+}
+
+window.loadStats=async function(){
+ if(!adminKey)return;
+ try{
+  const d=await api("/api/comments/stats",{headers:headers()});
+  const s=d.statistics||{};
+  const map={total:s.total,replied:s.replied,failed:s.failed,pending:s.pending,ignored:s.ignored};
+  Object.entries(map).forEach(([k,v])=>{
+   $(k).textContent=formatNumber(v);
+   $("a"+k[0].toUpperCase()+k.slice(1)).textContent=formatNumber(v);
+  });
+ }catch(e){$("adminMessage").textContent=e.message;}
+};
+
+function renderComparison(data){
+ const area=$("comparisonGrid"),message=$("comparisonMessage");
+ area.innerHTML="";
+ const today=data?.today,yesterday=data?.yesterday;
+ if(!today||!yesterday){
+  message.textContent="Comparison data abhi available nahi hai. History collect hone ke baad comparison dikhega.";
+  return;
+ }
+ const t=getSnapshotTotals(today),y=getSnapshotTotals(yesterday);
+ const metrics=[["Reach","reach"],["Views","views"],["Likes","likes"],["Comments","comments"],["Shares","shares"],["Saves","saves"],["Interactions","interactions"]];
+ message.textContent="Today compared with yesterday";
+ metrics.forEach(([label,key])=>{
+  const current=getMetric(t,key),previous=getMetric(y,key);
+  const box=document.createElement("div");box.className="comparison-item";
+  const name=document.createElement("small");name.textContent=label;
+  const value=document.createElement("strong");value.textContent=formatNumber(current);
+  const change=document.createElement("div");
+  if(current===null||previous===null){
+   change.className="change-neutral";change.textContent="Change: N/A";
+  }else{
+   const diff=current-previous;
+   const percent=previous!==0?(diff/previous)*100:null;
+   change.className=diff>0?"change-up":diff<0?"change-down":"change-neutral";
+   change.textContent=(diff>0?"+":"")+formatNumber(diff)+(percent===null?"":" ("+(percent>0?"+":"")+percent.toFixed(1)+"%)");
+  }
+  box.append(name,value,change);area.append(box);
+ });
+}
+
+function renderHistoryChart(){
+ const period=$("historyPeriod")?.value||"7";
+ const metric=$("historyMetric")?.value||"reach";
+ const source=period==="30"?analyticsHistory.last30Days:analyticsHistory.last7Days;
+ const area=$("historyChart"),table=$("historyTable");
+ area.innerHTML="";table.innerHTML="";
+ const rows=Array.isArray(source)?source:[];
+ const validRows=rows.map(item=>({date:getSnapshotDate(item),value:getMetric(getSnapshotTotals(item),metric)})).filter(x=>x.date);
+ const usable=validRows.filter(x=>x.value!==null);
+ if(!usable.length){
+  area.innerHTML='<div class="history-empty">Is period ke liye analytics history available nahi hai.<br>Backend snapshots collect hone ke baad chart dikhega.</div>';
+  return;
+ }
+ const values=usable.map(x=>x.value),max=Math.max(...values,1);
+ const width=800,height=220,left=45,right=20,top=20,bottom=35;
+ const chartWidth=width-left-right,chartHeight=height-top-bottom;
+ const points=usable.map((item,index)=>{
+  const x=usable.length===1?left+chartWidth/2:left+(index/(usable.length-1))*chartWidth;
+  const y=top+chartHeight-(item.value/max)*chartHeight;
+  return {x,y,item};
+ });
+ const path=points.map((p,i)=>(i===0?"M":"L")+p.x+","+p.y).join(" ");
+ let svg=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Analytics history chart">
+ <line x1="${left}" y1="${top}" x2="${left}" y2="${height-bottom}" stroke="#344967"/>
+ <line x1="${left}" y1="${height-bottom}" x2="${width-right}" y2="${height-bottom}" stroke="#344967"/>
+ <path d="${path}" fill="none" stroke="#38a0ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+ points.forEach(p=>{svg+=`<circle cx="${p.x}" cy="${p.y}" r="5" fill="#38a0ff"><title>${p.item.date}: ${formatNumber(p.item.value)}</title></circle>`;});
+ svg+=`<text x="${left}" y="${height-8}" fill="#9eb1cc" font-size="12">${usable[0].date}</text>
+ <text x="${width-right}" y="${height-8}" fill="#9eb1cc" font-size="12" text-anchor="end">${usable[usable.length-1].date}</text>
+ <text x="${left-7}" y="${top+5}" fill="#9eb1cc" font-size="11" text-anchor="end">${formatNumber(max)}</text>
+ <text x="${left-7}" y="${height-bottom}" fill="#9eb1cc" font-size="11" text-anchor="end">0</text></svg>`;
+ area.innerHTML='<div class="history-chart">'+svg+'</div>';
+ const tableElement=document.createElement("table");
+ tableElement.innerHTML="<thead><tr><th>Date</th><th>"+metric.charAt(0).toUpperCase()+metric.slice(1)+"</th></tr></thead>";
+ const tbody=document.createElement("tbody");
+ validRows.forEach(item=>{
+  const tr=document.createElement("tr"),date=document.createElement("td"),value=document.createElement("td");
+  date.textContent=item.date;value.textContent=formatNumber(item.value);
+  tr.append(date,value);tbody.append(tr);
+ });
+ tableElement.append(tbody);table.append(tableElement);
+}
+
+function loadAnalyticsHistory(d){
+ analyticsHistory={
+  last7Days:Array.isArray(d?.history?.last7Days)?d.history.last7Days:[],
+  last30Days:Array.isArray(d?.history?.last30Days)?d.history.last30Days:[]
+ };
+ renderComparison(d?.comparisons);
+ renderHistoryChart();
+}
+
+window.loadAdvancedAnalytics=async function(){
+ if(!adminKey){$("advancedMessage").textContent="Unlock admin access first.";return;}
+ $("advancedMessage").textContent="Loading advanced analytics...";
+ $("topPosts").innerHTML="";
+ try{
+  const d=await api("/api/advanced-analytics",{headers:headers()});
+  if(!d.success)throw new Error(d.error||d.message||"Unable to load analytics");
+  latestAnalytics=d;
+  const posts=Array.isArray(d.posts)?d.posts:[];
+  const raw=d.totals||{};
+  function totalMetric(key){
+   const direct=getMetric(raw,key);
+   if(direct!==null)return direct;
+   const values=posts.map(p=>getMetric(p,key)).filter(v=>v!==null);
+   return values.length?values.reduce((a,b)=>a+b,0):null;
+  }
+  const t={
+   reach:totalMetric("reach"),views:totalMetric("views"),likes:totalMetric("likes"),
+   comments:totalMetric("comments"),shares:totalMetric("shares"),saves:totalMetric("saves"),
+   interactions:totalMetric("interactions")
+  };
+  const engagement=validMetric(raw.engagementRate)!==null?raw.engagementRate:
+   (t.reach!==null&&t.reach>0&&t.interactions!==null?(t.interactions/t.reach)*100:null);
+  $("advReach").textContent=formatNumber(t.reach);
+  $("advViews").textContent=formatNumber(t.views);
+  $("advLikes").textContent=formatNumber(t.likes);
+  $("advComments").textContent=formatNumber(t.comments);
+  $("advShares").textContent=formatNumber(t.shares);
+  $("advSaves").textContent=formatNumber(t.saves);
+  $("advInteractions").textContent=formatNumber(t.interactions);
+  $("advEngagement").textContent=formatPercent(engagement);
+  $("advancedMessage").textContent="Analytics updated · "+(d.period||"Latest Instagram posts")+(d.note?" · "+d.note:"");
+  loadAnalyticsHistory(d);
+
+  const top=Array.isArray(d.topPosts)?d.topPosts:[...posts].sort((a,b)=>(getMetric(b,"interactions")??-1)-(getMetric(a,"interactions")??-1)).slice(0,3);
+  top.forEach((p,i)=>{
+   const c=document.createElement("div");c.className="analytics-post";
+   const h=document.createElement("h3");h.textContent="#"+(i+1)+" Top Performing Post";
+   const cap=document.createElement("p");cap.textContent=p.caption||"No caption";
+   const date=document.createElement("small");date.className="muted";date.textContent=p.timestamp?new Date(p.timestamp).toLocaleString():"Date unavailable";
+   const g=document.createElement("div");g.className="grid";
+   const values=[["Likes",p.likes],["Comments",p.comments],["Reach",p.reach],["Views",p.views],["Shares",p.shares],["Saves",p.saves],["Interactions",p.totalInteractions??p.interactions],["Engagement",p.engagementRate]];
+   values.forEach(([label,value])=>{
+    const b=document.createElement("div");b.className="stat";
+    const sm=document.createElement("small");sm.textContent=label;
+    const st=document.createElement("strong");st.textContent=label==="Engagement"?formatPercent(value):formatNumber(value);
+    b.append(sm,st);g.append(b);
+   });
+   c.append(h,cap,date,g);
+   if(p.permalink){
+    const a=document.createElement("a");a.href=p.permalink;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="View Instagram Post ↗";c.append(a);
+   }
+   $("topPosts").append(c);
+  });
+  if(!top.length)$("topPosts").textContent="No top-performing posts available.";
+ }catch(e){
+  $("advancedMessage").textContent="Advanced Analytics Error: "+e.message;
+  $("comparisonMessage").textContent="Comparison unavailable.";
+  $("historyMessage").textContent="History unavailable.";
+ }
+};
+
+window.loadComments=async function(){
+ if(!adminKey){$("comments").textContent="Unlock admin access first.";return;}
+ const a=$("comments");a.textContent="Loading comments...";
+ try{
+  const d=await api("/api/comments?limit=50",{headers:headers()});a.innerHTML="";
+  if(!d.comments?.length){a.textContent="No comments found yet.";return;}
+  d.comments.forEach(c=>{
+   const x=document.createElement("div");x.className="comment";
+   const n=document.createElement("strong");n.textContent="@"+(c.username||"Unknown");
+   const p=document.createElement("p");p.textContent=c.comment_text||"(No text)";
+   const s=document.createElement("small");s.textContent="Status: "+c.reply_status+" · "+(c.created_at||"");
+   x.append(n,p,s);a.append(x);
+  });
+ }catch(e){a.textContent="Error: "+e.message;}
+};
+
+window.loadInstagramMedia=async function(){
+ if(!adminKey){$("mediaMessage").textContent="Unlock admin access first.";return;}
+ const area=$("instagramMedia");$("mediaMessage").textContent="Loading Instagram posts and insights...";area.innerHTML="";
+ try{
+  const d=await api("/api/instagram-media",{headers:headers()});
+  if(!d.success)throw new Error(d.message||"Unable to load posts");
+  latestMediaPosts=d.posts||[];
+  if(!latestMediaPosts.length){$("mediaMessage").textContent="No Instagram posts found.";return;}
+  $("mediaMessage").textContent="Showing "+(d.total||latestMediaPosts.length)+" recent Instagram posts.";
+  latestMediaPosts.forEach(p=>{
+   const c=document.createElement("div");c.className="media-card";
+   const h=document.createElement("h3");h.textContent=p.mediaProductType||p.mediaType||"Instagram Post";
+   const cap=document.createElement("p");cap.textContent=p.caption||"No caption";
+   const dt=document.createElement("small");dt.className="muted";dt.textContent=p.timestamp?new Date(p.timestamp).toLocaleString():"Date unavailable";
+   c.append(h,cap,dt);
+   if(p.image){const im=document.createElement("img");im.src=p.image;im.alt="Instagram post";im.className="media-image";im.onerror=()=>im.remove();c.append(im);}
+   const g=document.createElement("div");g.className="grid";
+   [["Likes",p.likes],["Comments",p.comments],["Reach",p.reach],["Views",p.views],["Saves",p.saves],["Shares",p.shares],["Interactions",p.totalInteractions]].forEach(([l,v])=>{
+    const b=document.createElement("div");b.className="stat";
+    const sm=document.createElement("small");sm.textContent=l;
+    const st=document.createElement("strong");st.textContent=formatNumber(v);st.style.fontSize="22px";
+    b.append(sm,st);g.append(b);
+   });
+   c.append(g);
+   if(p.permalink){const a=document.createElement("a");a.href=p.permalink;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="View Instagram Post ↗";c.append(a);}
+   area.append(c);
+  });
+ }catch(e){$("mediaMessage").textContent="Instagram Analytics Error: "+e.message;}
+};
+
+window.saveSettings=async function(){
+ if(!adminKey){alert("Unlock dashboard first.");return;}
+ $("message").textContent="Saving...";
+ try{
+  await api("/api/settings",{method:"POST",headers:headers(),body:JSON.stringify({autoCommentReply:$("autoReply").checked,autoReplyText:$("replyText").value.trim()})});
+  $("message").textContent="Settings saved successfully!";await loadStatus();
+ }catch(e){$("message").textContent="Error: "+e.message;}
+};
+
+window.schedulePost=async function(){
+ if(!adminKey){alert("Unlock dashboard first.");return;}
+ const mediaType=$("mediaType").value,mediaUrl=$("mediaUrl").value.trim(),caption=$("postCaption").value,scheduledAt=$("scheduledAt").value;
+ if(!mediaUrl||!scheduledAt){alert("Media URL aur date/time required hain.");return;}
+ if(!mediaUrl.startsWith("https://")){alert("Public HTTPS URL required.");return;}
+ const date=new Date(scheduledAt);
+ if(isNaN(date)||date<=new Date()){alert("Future date and time select karo.");return;}
+ $("scheduleMessage").textContent="Scheduling...";
+ try{
+  await api("/api/schedule",{method:"POST",headers:headers(),body:JSON.stringify({mediaType,mediaUrl,caption,scheduledAt:date.toISOString()})});
+  $("scheduleMessage").textContent="Post scheduled successfully!";
+  $("mediaUrl").value="";$("postCaption").value="";$("scheduledAt").value="";
+  await loadScheduledPosts();
+ }catch(e){$("scheduleMessage").textContent="Error: "+e.message;}
+};
+
+window.loadScheduledPosts=async function(){
+ if(!adminKey){$("scheduledPosts").textContent="Unlock admin access first.";$("dashboardUpcoming").textContent="Unlock admin access first.";return;}
+ const area=$("scheduledPosts");area.textContent="Loading...";
+ try{
+  const d=await api("/api/scheduled-posts",{headers:headers()});scheduledCache=d.posts||[];area.innerHTML="";
+  if(!scheduledCache.length)area.textContent="No scheduled posts.";
+  scheduledCache.forEach(p=>{
+   const x=document.createElement("div");x.className="comment";
+   const h=document.createElement("strong");h.textContent=(p.media_type||"POST").toUpperCase()+" · "+p.status;
+   const dt=document.createElement("p");dt.textContent=new Date(p.scheduled_at).toLocaleString();x.append(h,dt);
+   if(p.status==="pending"){const b=document.createElement("button");b.className="secondary danger";b.textContent="Cancel";b.onclick=()=>cancelScheduledPost(p.id);x.append(b);}
+   area.append(x);
+  });
+  const upcoming=scheduledCache.filter(p=>p.status==="pending").sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)).slice(0,5);
+  $("dashboardUpcoming").innerHTML="";
+  if(!upcoming.length)$("dashboardUpcoming").textContent="No upcoming scheduled posts.";
+  upcoming.forEach(p=>{const d=document.createElement("div");d.className="comment";d.textContent=(p.media_type||"Post").toUpperCase()+" · "+new Date(p.scheduled_at).toLocaleString();$("dashboardUpcoming").append(d);});
+  checkScheduleChanges(scheduledCache);renderCalendar();
+ }catch(e){area.textContent="Error: "+e.message;}
+};
+
+window.cancelScheduledPost=async function(id){
+ if(!confirm("Cancel this scheduled post?"))return;
+ try{await api("/api/scheduled-posts/"+id,{method:"DELETE",headers:headers()});await loadScheduledPosts();}
+ catch(e){alert(e.message);}
+};
+
+function checkScheduleChanges(posts){
+ posts.forEach(p=>{
+  const id=String(p.id),status=String(p.status||"unknown");
+  if(previousPostStatuses[id]&&previousPostStatuses[id]!==status&&["published","failed"].includes(status.toLowerCase())){
+   const msg="Scheduled post "+status+": "+new Date(p.scheduled_at).toLocaleString();
+   notifications.unshift({text:msg,date:new Date().toLocaleString()});
+   if("Notification"in window&&Notification.permission==="granted")new Notification("AYUSH AUTO",{body:msg});
+  }
+  previousPostStatuses[id]=status;
+ });
+ renderNotifications();
+}
+
 window.refreshAll=async function(){await loadStatus();if(adminKey){await loadStats();await loadComments();}};
-window.researchHashtags=function(){const topic=$("hashtagTopic").value.trim().toLowerCase(),cat=$("hashtagCategory").value;const sets={freefire:["#freefire","#freefireindia","#freefiremax","#garena","#garenafreefire","#freefirecommunity","#booyah","#ffgaming"],tournament:["#freefiretournament","#ffcustomroom","#freefireesports","#esportstournament","#gamingtournament","#indiangamers","#tournament","#ffcustomroom"],esports:["#esports","#mobilegaming","#indiangaming","#gamingcommunity","#esportsindia","#progaming","#gamerlife","#squadgoals"],reels:["#gamingreels","#freefirereels","#gamingclips","#booyahmoment","#reelsindia","#instagaming","#viralreels","#gamingcontent"]};let tags=[...sets[cat]];if(topic){const words=topic.split(/[^a-z0-9]+/).filter(w=>w.length>2).slice(0,4).map(w=>"#"+w);tags=[...new Set([...words,...tags])];}const area=$("hashtagResults");area.innerHTML="<h3>Suggested hashtags</h3>";tags.forEach(t=>{const s=document.createElement("span");s.className="tag";s.textContent=t;area.append(s);});const b=document.createElement("button");b.className="secondary";b.textContent="Copy Hashtags";b.onclick=()=>copyText(tags.join(" "));area.append(document.createElement("br"),b);};
-window.loadBestTimes=async function(){const area=$("bestTimeResults");if(!adminKey){area.textContent="Unlock admin access first.";return;}area.textContent="Analysing recent post timestamps...";try{let posts=latestMediaPosts;if(!posts.length){const d=await api("/api/instagram-media",{headers:headers()});posts=d.posts||[];latestMediaPosts=posts;}const hours={};posts.forEach(p=>{if(!p.timestamp)return;const dt=new Date(p.timestamp);if(!isNaN(dt)){const h=dt.getHours();const engagement=Number(p.totalInteractions||0)+Number(p.likes||0)+Number(p.comments||0);if(!hours[h])hours[h]={score:0,count:0};hours[h].score+=engagement;hours[h].count++;}});let slots=Object.entries(hours).map(([h,v])=>({hour:Number(h),score:v.score/v.count,count:v.count})).sort((a,b)=>b.score-a.score).slice(0,3);area.innerHTML="";if(slots.length){const p=document.createElement("p");p.textContent="Based on available post timestamps and interactions:";area.append(p);slots.forEach((s,i)=>{const d=document.createElement("div");d.className="stat";d.style.margin="8px 0";d.innerHTML="<small>Suggested test slot #"+(i+1)+" · "+s.count+" post(s) in sample</small><strong>"+hourLabel(s.hour)+"</strong>";area.append(d);});}else{area.innerHTML="<div class='info'>Not enough timestamp data found. Start by testing these windows (local time):<br><b>12:00 PM–2:00 PM</b><br><b>6:00 PM–9:00 PM</b><br><b>9:00 PM–10:00 PM</b></div>";}}catch(e){area.textContent="Could not calculate: "+e.message;}};
+
+window.researchHashtags=function(){
+ const topic=$("hashtagTopic").value.trim().toLowerCase(),cat=$("hashtagCategory").value;
+ const sets={
+  freefire:["#freefire","#freefireindia","#freefiremax","#garena","#garenafreefire","#freefirecommunity","#booyah","#ffgaming"],
+  tournament:["#freefiretournament","#ffcustomroom","#freefireesports","#esportstournament","#gamingtournament","#indiangamers","#tournament","#ffcustomroom"],
+  esports:["#esports","#mobilegaming","#indiangaming","#gamingcommunity","#esportsindia","#progaming","#gamerlife","#squadgoals"],
+  reels:["#gamingreels","#freefirereels","#gamingclips","#booyahmoment","#reelsindia","#instagaming","#viralreels","#gamingcontent"]
+ };
+ let tags=[...sets[cat]];
+ if(topic){const words=topic.split(/[^a-z0-9]+/).filter(w=>w.length>2).slice(0,4).map(w=>"#"+w);tags=[...new Set([...words,...tags])];}
+ const area=$("hashtagResults");area.innerHTML="<h3>Suggested hashtags</h3>";
+ tags.forEach(t=>{const s=document.createElement("span");s.className="tag";s.textContent=t;area.append(s);});
+ const b=document.createElement("button");b.className="secondary";b.textContent="Copy Hashtags";b.onclick=()=>copyText(tags.join(" "));
+ area.append(document.createElement("br"),b);
+};
+
+window.loadBestTimes=async function(){
+ const area=$("bestTimeResults");
+ if(!adminKey){area.textContent="Unlock admin access first.";return;}
+ area.textContent="Analysing recent post timestamps...";
+ try{
+  let posts=latestMediaPosts;
+  if(!posts.length){const d=await api("/api/instagram-media",{headers:headers()});posts=d.posts||[];latestMediaPosts=posts;}
+  const hours={};
+  posts.forEach(p=>{
+   if(!p.timestamp)return;
+   const dt=new Date(p.timestamp);
+   if(!isNaN(dt)){
+    const h=dt.getHours(),engagement=Number(p.totalInteractions||0)+Number(p.likes||0)+Number(p.comments||0);
+    if(!hours[h])hours[h]={score:0,count:0};
+    hours[h].score+=engagement;hours[h].count++;
+   }
+  });
+  let slots=Object.entries(hours).map(([h,v])=>({hour:Number(h),score:v.score/v.count,count:v.count})).sort((a,b)=>b.score-a.score).slice(0,3);
+  area.innerHTML="";
+  if(slots.length){
+   const p=document.createElement("p");p.textContent="Based on available post timestamps and interactions:";area.append(p);
+   slots.forEach((s,i)=>{const d=document.createElement("div");d.className="stat";d.style.margin="8px 0";d.innerHTML="<small>Suggested test slot #"+(i+1)+" · "+s.count+" post(s) in sample</small><strong>"+hourLabel(s.hour)+"</strong>";area.append(d);});
+  }else{area.innerHTML="<div class='info'>Not enough timestamp data found. Start by testing these windows (local time):<br><b>12:00 PM–2:00 PM</b><br><b>6:00 PM–9:00 PM</b><br><b>9:00 PM–10:00 PM</b></div>";}
+ }catch(e){area.textContent="Could not calculate: "+e.message;}
+};
+
 function hourLabel(h){const a=h%12||12;return a+":00 "+(h>=12?"PM":"AM");}
 window.changeMonth=function(delta){calendarDate.setMonth(calendarDate.getMonth()+delta);renderCalendar();};
-function renderCalendar(){const grid=$("calendarGrid");if(!grid)return;const y=calendarDate.getFullYear(),m=calendarDate.getMonth();$("calendarTitle").textContent=calendarDate.toLocaleString("en-IN",{month:"long",year:"numeric"});grid.innerHTML="";["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(x=>{const d=document.createElement("div");d.className="muted";d.style.textAlign="center";d.textContent=x;grid.append(d);});const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),today=new Date();for(let i=0;i<first;i++){const d=document.createElement("div");d.className="day muted-day";grid.append(d);}for(let n=1;n<=days;n++){const date=new Date(y,m,n),cell=document.createElement("div");cell.className="day"+(date.toDateString()===today.toDateString()?" today":"");const num=document.createElement("b");num.textContent=n;cell.append(num);scheduledCache.filter(p=>{const dt=new Date(p.scheduled_at);return dt.getFullYear()===y&&dt.getMonth()===m&&dt.getDate()===n;}).forEach(p=>{const ev=document.createElement("span");ev.className="day-event";ev.textContent=(p.media_type||"Post")+" · "+(p.status||"");cell.append(ev);});grid.append(cell);}}
-window.generateCaption=function(){const topic=$("captionTopic").value.trim()||"Free Fire tournament",tone=$("captionTone").value,cta=$("captionCTA").value;const openers={hype:"🔥 READY TO DOMINATE?",professional:"🏆 AYUSH FF ESPORTS UPDATE",friendly:"🎮 Squad ready hai?",urgent:"⏳ LAST CALL, PLAYERS!"};const calls={comment:"👇 Comment your IGN below.",dm:"📩 DM us to register.",follow:"➕ Follow @ayush_ff_esports for more updates.",share:"🤝 Apne squad ke saath share karo."};const text=openers[tone]+"\n\n"+topic+"\n\nJoin the action with AYUSH FF ESPORTS. Bring your best game, play fair and give it your all!\n\n"+calls[cta]+"\n\n#AYUSHFFESPORTS #FreeFire #FreeFireIndia #FreeFireTournament #GamingIndia #EsportsIndia #Booyah";$("generatedCaption").value=text;};
+
+function renderCalendar(){
+ const grid=$("calendarGrid");if(!grid)return;
+ const y=calendarDate.getFullYear(),m=calendarDate.getMonth();
+ $("calendarTitle").textContent=calendarDate.toLocaleString("en-IN",{month:"long",year:"numeric"});
+ grid.innerHTML="";
+ ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(x=>{const d=document.createElement("div");d.className="muted";d.style.textAlign="center";d.textContent=x;grid.append(d);});
+ const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),today=new Date();
+ for(let i=0;i<first;i++){const d=document.createElement("div");d.className="day muted-day";grid.append(d);}
+ for(let n=1;n<=days;n++){
+  const date=new Date(y,m,n),cell=document.createElement("div");
+  cell.className="day"+(date.toDateString()===today.toDateString()?" today":"");
+  const num=document.createElement("b");num.textContent=n;cell.append(num);
+  scheduledCache.filter(p=>{const dt=new Date(p.scheduled_at);return dt.getFullYear()===y&&dt.getMonth()===m&&dt.getDate()===n;}).forEach(p=>{
+   const ev=document.createElement("span");ev.className="day-event";ev.textContent=(p.media_type||"Post")+" · "+(p.status||"");cell.append(ev);
+  });
+  grid.append(cell);
+ }
+}
+
+window.generateCaption=function(){
+ const topic=$("captionTopic").value.trim()||"Free Fire tournament",tone=$("captionTone").value,cta=$("captionCTA").value;
+ const openers={hype:"🔥 READY TO DOMINATE?",professional:"🏆 AYUSH FF ESPORTS UPDATE",friendly:"🎮 Squad ready hai?",urgent:"⏳ LAST CALL, PLAYERS!"};
+ const calls={comment:"👇 Comment your IGN below.",dm:"📩 DM us to register.",follow:"➕ Follow @ayush_ff_esports for more updates.",share:"🤝 Apne squad ke saath share karo."};
+ $("generatedCaption").value=openers[tone]+"\n\n"+topic+"\n\nJoin the action with AYUSH FF ESPORTS. Bring your best game, play fair and give it your all!\n\n"+calls[cta]+"\n\n#AYUSHFFESPORTS #FreeFire #FreeFireIndia #FreeFireTournament #GamingIndia #EsportsIndia #Booyah";
+};
 window.copyGeneratedCaption=()=>copyText($("generatedCaption").value);
 window.useCaptionInScheduler=function(){$("postCaption").value=$("generatedCaption").value;showPage("scheduled");};
+
 function getCompetitors(){try{return JSON.parse(localStorage.getItem("ayush_competitors")||"[]");}catch(e){return [];}}
-window.addCompetitor=function(){const username=$("competitorUsername").value.trim().replace(/^@/,""),url=$("competitorUrl").value.trim(),followers=$("competitorFollowers").value,notes=$("competitorNotes").value.trim();if(!username||!url||!/^https:\/\/(www\.)?instagram\.com\//i.test(url)){alert("Username aur valid public Instagram URL enter karo.");return;}const list=getCompetitors();list.push({id:Date.now(),username,url,followers:followers===""?null:Number(followers),notes,updated:new Date().toISOString()});localStorage.setItem("ayush_competitors",JSON.stringify(list));["competitorUsername","competitorUrl","competitorFollowers","competitorNotes"].forEach(id=>$(id).value="");renderCompetitors();};
-window.renderCompetitors=function(){const area=$("competitorList");if(!area)return;const list=getCompetitors();area.innerHTML="";if(!list.length){area.textContent="No profiles added yet.";return;}list.forEach(p=>{const c=document.createElement("div");c.className="comment";const h=document.createElement("strong");h.textContent="@"+p.username;const info=document.createElement("p");info.textContent="Followers: "+(p.followers===null?"Not entered":formatNumber(p.followers))+" · Updated: "+new Date(p.updated).toLocaleDateString();const notes=document.createElement("p");notes.textContent=p.notes||"No notes";const a=document.createElement("a");a.href=p.url;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="Open public profile ↗";const edit=document.createElement("button");edit.className="secondary small-btn";edit.textContent="Update followers";edit.onclick=()=>{const v=prompt("Enter current follower count:",p.followers??"");if(v===null)return;if(v.trim()===""||!Number.isFinite(Number(v))||Number(v)<0){alert("Valid follower count enter karo.");return;}p.followers=Number(v);p.updated=new Date().toISOString();localStorage.setItem("ayush_competitors",JSON.stringify(list));renderCompetitors();};const del=document.createElement("button");del.className="secondary danger small-btn";del.textContent="Delete";del.style.marginLeft="7px";del.onclick=()=>{if(confirm("Delete this tracked profile?")){localStorage.setItem("ayush_competitors",JSON.stringify(list.filter(x=>x.id!==p.id)));renderCompetitors();}};c.append(h,info,notes,a,document.createElement("br"),edit,del);area.append(c);});};
-window.enableNotifications=async function(){if(!("Notification"in window)){$("notificationPermission").textContent="This browser does not support notifications.";return;}const p=await Notification.requestPermission();$("notificationPermission").textContent="Notification permission: "+p;};
-function renderNotifications(){const a=$("notificationList");if(!a)return;a.innerHTML="";if(!notifications.length){a.textContent="No new status updates detected yet.";return;}notifications.slice(0,30).forEach(n=>{const d=document.createElement("div");d.className="comment";const s=document.createElement("strong");s.textContent=n.text;const sm=document.createElement("small");sm.textContent=n.date;d.append(s,document.createElement("br"),sm);a.append(d);});}
+window.addCompetitor=function(){
+ const username=$("competitorUsername").value.trim().replace(/^@/,""),url=$("competitorUrl").value.trim(),followers=$("competitorFollowers").value,notes=$("competitorNotes").value.trim();
+ if(!username||!url||!/^https:\/\/(www\.)?instagram\.com\//i.test(url)){alert("Username aur valid public Instagram URL enter karo.");return;}
+ const list=getCompetitors();list.push({id:Date.now(),username,url,followers:followers===""?null:Number(followers),notes,updated:new Date().toISOString()});
+ localStorage.setItem("ayush_competitors",JSON.stringify(list));
+ ["competitorUsername","competitorUrl","competitorFollowers","competitorNotes"].forEach(id=>$(id).value="");
+ renderCompetitors();
+};
+window.renderCompetitors=function(){
+ const area=$("competitorList");if(!area)return;
+ const list=getCompetitors();area.innerHTML="";
+ if(!list.length){area.textContent="No profiles added yet.";return;}
+ list.forEach(p=>{
+  const c=document.createElement("div");c.className="comment";
+  const h=document.createElement("strong");h.textContent="@"+p.username;
+  const info=document.createElement("p");info.textContent="Followers: "+(p.followers===null?"Not entered":formatNumber(p.followers))+" · Updated: "+new Date(p.updated).toLocaleDateString();
+  const notes=document.createElement("p");notes.textContent=p.notes||"No notes";
+  const a=document.createElement("a");a.href=p.url;a.target="_blank";a.rel="noopener noreferrer";a.className="media-link";a.textContent="Open public profile ↗";
+  const edit=document.createElement("button");edit.className="secondary small-btn";edit.textContent="Update followers";
+  edit.onclick=()=>{
+   const v=prompt("Enter current follower count:",p.followers??"");if(v===null)return;
+   if(v.trim()===""||!Number.isFinite(Number(v))||Number(v)<0){alert("Valid follower count enter karo.");return;}
+   p.followers=Number(v);p.updated=new Date().toISOString();localStorage.setItem("ayush_competitors",JSON.stringify(list));renderCompetitors();
+  };
+  const del=document.createElement("button");del.className="secondary danger small-btn";del.textContent="Delete";del.style.marginLeft="7px";
+  del.onclick=()=>{if(confirm("Delete this tracked profile?")){localStorage.setItem("ayush_competitors",JSON.stringify(list.filter(x=>x.id!==p.id)));renderCompetitors();}};
+  c.append(h,info,notes,a,document.createElement("br"),edit,del);area.append(c);
+ });
+};
+
+window.enableNotifications=async function(){
+ if(!("Notification"in window)){$("notificationPermission").textContent="This browser does not support notifications.";return;}
+ const p=await Notification.requestPermission();$("notificationPermission").textContent="Notification permission: "+p;
+};
+function renderNotifications(){
+ const a=$("notificationList");if(!a)return;a.innerHTML="";
+ if(!notifications.length){a.textContent="No new status updates detected yet.";return;}
+ notifications.slice(0,30).forEach(n=>{
+  const d=document.createElement("div");d.className="comment";
+  const s=document.createElement("strong");s.textContent=n.text;
+  const sm=document.createElement("small");sm.textContent=n.date;
+  d.append(s,document.createElement("br"),sm);a.append(d);
+ });
+}
 window.clearNotifications=function(){notifications=[];renderNotifications();};
-function copyText(text){if(!text){alert("Nothing to copy.");return;}if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(()=>alert("Copied!")).catch(()=>fallbackCopy(text));else fallbackCopy(text);}
-function fallbackCopy(text){const t=document.createElement("textarea");t.value=text;document.body.append(t);t.select();document.execCommand("copy");t.remove();alert("Copied!");}
-window.exportAnalyticsCSV=function(){if(!latestAnalytics&&!latestMediaPosts.length){alert("Pehle Analytics load karo.");return;}const rows=[["Metric","Value"]];const t=latestAnalytics?.totals||{};Object.entries(t).forEach(([k,v])=>rows.push([k,v]));rows.push([],["Post caption","Likes","Comments","Reach","Views","Shares","Saves","Interactions","Timestamp"]);latestMediaPosts.forEach(p=>rows.push([p.caption||"",p.likes??"",p.comments??"",p.reach??"",p.views??"",p.shares??"",p.saves??"",p.totalInteractions??"",p.timestamp||""]));const csv=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="ayush-auto-analytics.csv";a.click();URL.revokeObjectURL(url);};
+
+function copyText(text){
+ if(!text){alert("Nothing to copy.");return;}
+ if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(()=>alert("Copied!")).catch(()=>fallbackCopy(text));
+ else fallbackCopy(text);
+}
+function fallbackCopy(text){
+ const t=document.createElement("textarea");t.value=text;document.body.append(t);t.select();document.execCommand("copy");t.remove();alert("Copied!");
+}
+
+window.exportAnalyticsCSV=function(){
+ if(!latestAnalytics&&!latestMediaPosts.length){alert("Pehle Analytics load karo.");return;}
+ const rows=[["AYUSH AUTO ANALYTICS REPORT"],[],["ACCOUNT PERFORMANCE","VALUE"]];
+ const totals=latestAnalytics?.totals||{};
+ Object.entries(totals).forEach(([key,value])=>rows.push([key,value??"N/A"]));
+ rows.push([],["TODAY VS YESTERDAY"],["Metric","Today","Yesterday"]);
+ const comparisons=latestAnalytics?.comparisons||{};
+ const today=getSnapshotTotals(comparisons.today),yesterday=getSnapshotTotals(comparisons.yesterday);
+ ["reach","views","likes","comments","shares","saves","interactions"].forEach(key=>{
+  rows.push([key,getMetric(today,key)??"N/A",getMetric(yesterday,key)??"N/A"]);
+ });
+ rows.push([],["DAILY ANALYTICS HISTORY"]);
+ rows.push(["Date","Reach","Views","Likes","Comments","Shares","Saves","Interactions"]);
+ (analyticsHistory.last30Days||[]).forEach(item=>{
+  const t=getSnapshotTotals(item);
+  rows.push([getSnapshotDate(item),getMetric(t,"reach")??"N/A",getMetric(t,"views")??"N/A",getMetric(t,"likes")??"N/A",getMetric(t,"comments")??"N/A",getMetric(t,"shares")??"N/A",getMetric(t,"saves")??"N/A",getMetric(t,"interactions")??"N/A"]);
+ });
+ rows.push([],["INSTAGRAM POSTS"]);
+ rows.push(["Caption","Likes","Comments","Reach","Views","Shares","Saves","Interactions","Timestamp"]);
+ latestMediaPosts.forEach(p=>rows.push([p.caption||"",p.likes??"N/A",p.comments??"N/A",p.reach??"N/A",p.views??"N/A",p.shares??"N/A",p.saves??"N/A",p.totalInteractions??"N/A",p.timestamp||""]));
+ const csv=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
+ const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="ayush-auto-analytics.csv";a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
 window.exportAnalyticsPDF=function(){showPage("analytics");window.print();};
-window.saveCustomization=function(){const c={accent:$("accentChoice").value,compact:$("compactMode").checked,comment:$("showCommentStats").checked,upcoming:$("showUpcoming").checked};localStorage.setItem("ayush_dashboard_custom",JSON.stringify(c));applyCustomization();};
-function applyCustomization(){let c={};try{c=JSON.parse(localStorage.getItem("ayush_dashboard_custom")||"{}");}catch(e){}document.documentElement.style.setProperty("--accent",c.accent||"#1677ff");document.body.classList.toggle("compact",!!c.compact);const commentCard=$("total")?.closest(".card");const upcoming=$("dashboardUpcoming")?.closest(".card");if(commentCard)commentCard.style.display=c.comment===false?"none":"";if(upcoming)upcoming.style.display=c.upcoming===false?"none":"";$("accentChoice").value=c.accent||"#1677ff";$("compactMode").checked=!!c.compact;$("showCommentStats").checked=c.comment!==false;$("showUpcoming").checked=c.upcoming!==false;}
+
+window.saveCustomization=function(){
+ const c={accent:$("accentChoice").value,compact:$("compactMode").checked,comment:$("showCommentStats").checked,upcoming:$("showUpcoming").checked};
+ localStorage.setItem("ayush_dashboard_custom",JSON.stringify(c));applyCustomization();
+};
+function applyCustomization(){
+ let c={};try{c=JSON.parse(localStorage.getItem("ayush_dashboard_custom")||"{}");}catch(e){}
+ document.documentElement.style.setProperty("--accent",c.accent||"#1677ff");
+ document.body.classList.toggle("compact",!!c.compact);
+ const commentCard=$("total")?.closest(".card"),upcoming=$("dashboardUpcoming")?.closest(".card");
+ if(commentCard)commentCard.style.display=c.comment===false?"none":"";
+ if(upcoming)upcoming.style.display=c.upcoming===false?"none":"";
+ $("accentChoice").value=c.accent||"#1677ff";
+ $("compactMode").checked=!!c.compact;
+ $("showCommentStats").checked=c.comment!==false;
+ $("showUpcoming").checked=c.upcoming!==false;
+}
 window.resetCustomization=function(){localStorage.removeItem("ayush_dashboard_custom");applyCustomization();};
-applyCustomization();renderCalendar();refreshAll();setInterval(()=>{refreshAll();if(adminKey)loadScheduledPosts();},30000);
+
+applyCustomization();
+renderCalendar();
+refreshAll();
+setInterval(()=>{refreshAll();if(adminKey)loadScheduledPosts();},30000);
 </script>
 </body>
 </html>
