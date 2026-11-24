@@ -465,21 +465,84 @@ window.loadAdvancedAnalytics=async function(){
  }
 };
 
-window.loadComments=async function(){
- if(!adminKey){$("comments").textContent="Unlock admin access first.";return;}
- const a=$("comments");a.textContent="Loading comments...";
- try{
-  const d=await api("/api/comments?limit=50",{headers:headers()});a.innerHTML="";
-  if(!d.comments?.length){a.textContent="No comments found yet.";return;}
-  d.comments.forEach(c=>{
-   const x=document.createElement("div");x.className="comment";
-   const n=document.createElement("strong");n.textContent="@"+(c.username||"Unknown");
-   const p=document.createElement("p");p.textContent=c.comment_text||"(No text)";
-   const s=document.createElement("small");s.textContent="Status: "+c.reply_status+" · "+(c.created_at||"");
-   x.append(n,p,s);a.append(x);
-  });
- }catch(e){a.textContent="Error: "+e.message;}
+
+window.loadComments = async function () {
+  if (!adminKey) {
+    $("comments").textContent = "Unlock admin access first.";
+    return;
+  }
+
+  const area = $("comments");
+  area.textContent = "Loading comments...";
+
+  try {
+    const d = await api("/api/comments?limit=50", {
+      headers: headers()
+    });
+
+    area.innerHTML = "";
+
+    const comments = Array.isArray(d.comments) ? d.comments : [];
+
+    if (comments.length === 0) {
+      area.textContent = "No comments found yet.";
+      return;
+    }
+
+    comments.forEach(c => {
+      const card = document.createElement("div");
+      card.className = "comment";
+
+      const username = document.createElement("strong");
+      username.textContent = "@" + (c.username || "Unknown");
+
+      const commentLabel = document.createElement("small");
+      commentLabel.textContent = "INSTAGRAM COMMENT";
+
+      const commentText = document.createElement("p");
+      commentText.textContent =
+        c.text ??
+        c.comment_text ??
+        c.comment ??
+        c.message ??
+        "(Comment text unavailable in API response)";
+
+      const replyLabel = document.createElement("small");
+      replyLabel.textContent = "AYUSH AUTO REPLY";
+
+      const replyText = document.createElement("p");
+      replyText.textContent =
+        c.reply ??
+        c.reply_text ??
+        c.response ??
+        "No reply saved for this comment.";
+
+      const status = document.createElement("small");
+      status.textContent =
+        "Status: " +
+        (c.status || c.reply_status || "Unknown") +
+        " · " +
+        (c.created_at
+          ? new Date(c.created_at).toLocaleString("en-IN")
+          : "");
+
+      card.append(
+        username,
+        commentLabel,
+        commentText,
+        replyLabel,
+        replyText,
+        status
+      );
+
+      area.append(card);
+    });
+
+  } catch (e) {
+    area.textContent = "Comments Error: " + e.message;
+  }
 };
+
 
 window.loadInstagramMedia=async function(){
  if(!adminKey){$("mediaMessage").textContent="Unlock admin access first.";return;}
