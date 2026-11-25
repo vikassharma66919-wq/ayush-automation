@@ -170,7 +170,7 @@ body.compact .card{padding:12px;margin-bottom:10px}body.compact .stat{padding:11
 
 <script>
 const API="https://ayush-ff-backend.onrender.com";
-let adminKey=sessionStorage.getItem("ayush_admin_key")||"";
+let adminKey=localStorage.getItem("ayush_admin_key")||"";
 let latestAnalytics=null,latestMediaPosts=[],scheduledCache=[],calendarDate=new Date();
 let analyticsHistory={last7Days:[],last30Days:[]};
 let previousPostStatuses={},notifications=[];
@@ -241,13 +241,13 @@ window.toggleMenu=()=>$("sidebar").classList.toggle("open");
 window.saveKey=function(){
  const value=$("adminKey").value.trim();
  if(!value){$("adminMessage").textContent="Enter admin key.";return;}
- adminKey=value;sessionStorage.setItem("ayush_admin_key",value);
+ adminKey=value;localStorage.setItem("ayush_admin_key",value);
  $("adminKey").value="";
  $("adminMessage").textContent="Admin key saved for this browser session.";
  refreshAll();loadScheduledPosts();
 };
 window.clearKey=function(){
- sessionStorage.removeItem("ayush_admin_key");adminKey="";
+ localStorage.removeItem("ayush_admin_key");adminKey="";
  $("adminMessage").textContent="Dashboard locked.";
  ["comments","scheduledPosts","instagramMedia","topPosts","dashboardUpcoming"].forEach(id=>$(id).textContent="Unlock admin access first.");
  $("mediaMessage").textContent="Unlock admin access first.";
